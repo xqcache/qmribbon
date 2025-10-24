@@ -1,0 +1,27 @@
+---
+Language: Cpp
+BasedOnStyle: WebKit
+Standard: c++20
+
+# 预处理器（宏）控制
+IndentPPDirectives: AfterHash
+SpaceAfterLogicalNot: false
+MacroBlockBegin: "^#if"
+MacroBlockEnd: "^#endif"
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^".*\.h"'
+    Priority: 2
+  - Regex: '^<.*>'
+    Priority: 3
+  - Regex: '.*'
+    Priority: 4
+
+# 注释
+SpacesBeforeTrailingComments: 2
+CommentPragmas: '^ IWYU pragma:'
+
+QualifierAlignment: Left
