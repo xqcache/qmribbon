@@ -10,6 +10,7 @@
 struct QmRibbonTitleBarPrivate {
     QToolBar* quick_access_toolbar { nullptr };
     QToolButton* btn_user_info { nullptr };
+    QToolButton* btn_options { nullptr };
 
     QToolButton* btn_win_minimum { nullptr };
     QToolButton* btn_win_maximum { nullptr };
@@ -54,6 +55,10 @@ void QmRibbonTitleBar::initUi()
 {
     d_->quick_access_toolbar = new QToolBar(this);
     d_->btn_user_info = new QToolButton(this);
+    d_->btn_options = new QToolButton(this);
+
+    d_->btn_user_info->setToolTip(tr("User Information"));
+    d_->btn_options->setToolTip(tr("Ribbon Options"));
 
     auto* blank_widget = new QWidget(this);
     blank_widget->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -66,6 +71,7 @@ void QmRibbonTitleBar::initUi()
     lyt_main->addWidget(d_->quick_access_toolbar, 0);
     lyt_main->addWidget(blank_widget, 1);
     lyt_main->addWidget(d_->btn_user_info, 0);
+    lyt_main->addWidget(d_->btn_options, 0);
 
     initWindowButtons();
 }
