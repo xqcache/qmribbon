@@ -6,4 +6,9 @@
     <qresource prefix="/qmribbon/styles">
         <file alias="default">styles/default.qss</file>
     </qresource>
+
+    
+    <qresource prefix="/qmribbon/icons">
+        <file alias="expand">icons/expand.svg</file>
+    </qresource>
 </RCC>

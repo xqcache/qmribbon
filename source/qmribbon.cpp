@@ -3,6 +3,7 @@
 #include "qmribbonfloatcontainer.h"
 #include "qmribbonpage.h"
 #include "qmribbonpagecontainer.h"
+#include "qmribbonsection.h"
 #include "qmribbontabbar.h"
 #include "qmribbontitlebar.h"
 
@@ -119,7 +120,7 @@ QmRibbon* QmRibbon::install(QMainWindow* window, Features features)
 
 QmRibbonPage* QmRibbon::addPage(const QString& title, const QIcon& icon)
 {
-    auto* page = new QmRibbonPage(title, icon, d_->page_container);
+    auto* page = new QmRibbonPage(d_->page_container);
     d_->page_container->addWidget(page);
     d_->tabbar->addTab(title, icon);
     return page;

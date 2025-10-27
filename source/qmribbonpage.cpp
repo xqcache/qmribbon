@@ -2,28 +2,21 @@
 
 #include "qmribbonsection.h"
 
+#include <QFrame>
 #include <QHBoxLayout>
 
 struct QmRibbonPagePrivate {
-    QString title;
-    QIcon icon;
+    QHBoxLayout* lyt_section { nullptr };
 };
 
 QmRibbonPage::QmRibbonPage(QWidget* parent)
-    : QmRibbonPage("", QIcon(), parent)
-{
-}
-
-QmRibbonPage::QmRibbonPage(const QString& title, QWidget* parent)
-    : QmRibbonPage(title, QIcon(), parent)
-{
-}
-
-QmRibbonPage::QmRibbonPage(const QString& title, const QIcon& icon, QWidget* parent)
     : QWidget(parent)
     , d_(new QmRibbonPagePrivate)
 {
-    setLayout(new QHBoxLayout(this));
+    d_->lyt_section = new QHBoxLayout(this);
+    d_->lyt_section->addSpacerItem(new QSpacerItem(20, 0, QSizePolicy::Expanding));
+    d_->lyt_section->setContentsMargins(0, 0, 0, 0);
+    d_->lyt_section->setSpacing(0);
 }
 
 QmRibbonPage::~QmRibbonPage() noexcept
@@ -31,22 +24,21 @@ QmRibbonPage::~QmRibbonPage() noexcept
     delete d_;
 }
 
-void QmRibbonPage::setTitle(const QString& title)
-{
-    d_->title = title;
-}
-
-void QmRibbonPage::setIcon(const QIcon& icon)
-{
-    d_->icon = icon;
-}
-
-QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& icon)
+QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& icon, QmRibbonSection::Features features)
 {
     auto* section = new QmRibbonSection(this);
     section->setTitle(title);
     section->setIcon(icon);
-    static_cast<QHBoxLayout*>(layout())->addWidget(section);
+    section->setFeatures(features);
+    d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, section);
+
+    auto* separator = new QFrame(this);
+    separator->setProperty("Style", "RibbonSectionSeparator");
+    separator->setLineWidth(2);
+    separator->setFrameShape(QFrame::VLine);
+    d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, separator);
+
+    emit sectionCreated(section, QPrivateSignal());
     return section;
 }
 
