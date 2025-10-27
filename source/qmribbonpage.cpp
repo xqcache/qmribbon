@@ -49,3 +49,8 @@ QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& ico
     static_cast<QHBoxLayout*>(layout())->addWidget(section);
     return section;
 }
+
+QSize QmRibbonPage::sizeHint() const
+{
+    return QSize(87, 100);
+}

@@ -43,18 +43,21 @@ struct QmRibbonPrivate {
     QmRibbon::Features features = QmRibbon::Features();
 };
 
-QmRibbon::QmRibbon(QWidget* parent)
+QmRibbon::QmRibbon(QWidget* parent, Features features)
     : QWidget(parent)
     , d_(new QmRibbonPrivate)
 {
-    initializeAssets();
-    initUi();
-
-    QFile style(":/qmribbon/styles/default");
-    if (style.open(QFile::ReadOnly)) {
-        setStyleSheet(style.readAll());
-        style.close();
+    d_->features = features;
+    if (!d_->features.testAnyFlag(NoDefaultStyle)) {
+        initializeAssets();
+        QFile style(":/qmribbon/styles/default");
+        if (style.open(QFile::ReadOnly)) {
+            setStyleSheet(style.readAll());
+            style.close();
+        }
     }
+    initUi();
+    connectSignals();
 }
 
 QmRibbon::~QmRibbon() noexcept
@@ -67,6 +70,11 @@ QmRibbon::~QmRibbon() noexcept
 QmRibbonTitleBar* QmRibbon::titleBar() const
 {
     return d_->titlebar;
+}
+
+QmRibbonTabBar* QmRibbon::tabBar() const
+{
+    return d_->tabbar;
 }
 
 void QmRibbon::initUi()
@@ -86,14 +94,11 @@ void QmRibbon::initUi()
     d_->float_container = new QmRibbonFloatContainer(parentWidget());
     d_->float_container->setVisible(false);
 
-    d_->titlebar->setQuickAccessToolBarVisible(!d_->features.testAnyFlag(NoQuickAccessToolBar));
-    d_->titlebar->setUserInfoButtonVisible(!d_->features.testAnyFlag(NoUserInfoButton));
-    d_->titlebar->setRibbonButtonVisible(!d_->features.testAnyFlag(NoRibbonButton));
+    setFeatures(d_->features);
 }
 
 bool QmRibbon::event(QEvent* event)
 {
-
     return QWidget::event(event);
 }
 
@@ -120,10 +125,6 @@ QmRibbonPage* QmRibbon::addPage(const QString& title, const QIcon& icon)
     return page;
 }
 
-void QmRibbon::updateWidgetGeometry()
-{
-}
-
 void QmRibbon::setFeature(Feature feature, bool on)
 {
     if (on) {
@@ -144,4 +145,11 @@ void QmRibbon::setFeatures(Features features, bool on)
     d_->titlebar->setQuickAccessToolBarVisible(!d_->features.testAnyFlag(NoQuickAccessToolBar));
     d_->titlebar->setUserInfoButtonVisible(!d_->features.testAnyFlag(NoUserInfoButton));
     d_->titlebar->setRibbonButtonVisible(!d_->features.testAnyFlag(NoRibbonButton));
+    d_->titlebar->setLogoVisible(!d_->features.testAnyFlag(NoApplicationLogo));
+    d_->tabbar->setApplicationButtonVisible(!d_->features.testAnyFlag(NoApplicationButton));
+}
+
+void QmRibbon::connectSignals()
+{
+    connect(d_->tabbar, &QmRibbonTabBar::tabActivated, d_->page_container, &QmRibbonPageContainer::setCurrentIndex);
 }

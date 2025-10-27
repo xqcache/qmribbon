@@ -24,8 +24,11 @@ public:
     void setUserInfoButtonVisible(bool visible);
     void setRibbonButtonVisible(bool visible);
 
+    void setLogoIcon(const QIcon& icon);
+    void setLogoVisible(bool visible);
+
 protected:
-    bool event(QEvent *event) override;
+    bool event(QEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;

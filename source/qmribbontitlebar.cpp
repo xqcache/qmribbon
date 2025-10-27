@@ -16,6 +16,8 @@ struct QmRibbonTitleBarPrivate {
     QToolButton* btn_win_minimized { nullptr };
     QToolButton* btn_win_maximized { nullptr };
     QToolButton* btn_win_close { nullptr };
+
+    QToolButton* btn_logo { nullptr };
 };
 
 QmRibbonTitleBar::QmRibbonTitleBar(QWidget* parent)
@@ -23,6 +25,7 @@ QmRibbonTitleBar::QmRibbonTitleBar(QWidget* parent)
     , d_(new QmRibbonTitleBarPrivate)
 {
     setProperty("WindowTitleBar", true);
+    setAttribute(Qt::WA_StyledBackground, true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     initUi();
     initStyleSheetKey();
@@ -58,11 +61,11 @@ bool QmRibbonTitleBar::eventFilter(QObject* watched, QEvent* event)
     case QEvent::WindowStateChange:
         if (auto* window = qobject_cast<QMainWindow*>(watched); window) {
             if (window->isMaximized()) {
-                d_->btn_win_maximized->setText("\u2101");
-                d_->btn_win_maximized->setToolTip(tr("Maximize the window"));
-            } else {
                 d_->btn_win_maximized->setToolTip(tr("Normalize the window"));
                 d_->btn_win_maximized->setText("\u2102");
+            } else {
+                d_->btn_win_maximized->setText("\u2101");
+                d_->btn_win_maximized->setToolTip(tr("Maximize the window"));
             }
         }
         break;
@@ -100,13 +103,16 @@ void QmRibbonTitleBar::mouseDoubleClickEvent(QMouseEvent* event)
 void QmRibbonTitleBar::initUi()
 {
     d_->quick_access_toolbar = new QToolBar(this);
+
+    d_->btn_logo = new QToolButton(this);
+    d_->btn_logo->setProperty("Style", "RibbonApplicationLogo");
+
     d_->btn_user_info = new QToolButton(this);
-    d_->btn_ribbon_options = new QToolButton(this);
-
     d_->btn_user_info->setToolTip(tr("User Information"));
-    d_->btn_ribbon_options->setToolTip(tr("Ribbon Options"));
-
     d_->btn_user_info->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+    d_->btn_ribbon_options = new QToolButton(this);
+    d_->btn_ribbon_options->setToolTip(tr("Ribbon Options"));
     d_->btn_ribbon_options->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
     auto* blank_widget = new QWidget(this);
@@ -118,6 +124,7 @@ void QmRibbonTitleBar::initUi()
     auto* lyt_main = new QHBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->setSpacing(0);
+    lyt_main->addWidget(d_->btn_logo);
     lyt_main->addWidget(d_->quick_access_toolbar, 0);
     lyt_main->addWidget(blank_widget, 1);
     lyt_main->addWidget(d_->btn_user_info, 0);
@@ -215,4 +222,14 @@ void QmRibbonTitleBar::setUserInfoButtonVisible(bool visible)
 void QmRibbonTitleBar::setRibbonButtonVisible(bool visible)
 {
     d_->btn_ribbon_options->setVisible(visible);
+}
+
+void QmRibbonTitleBar::setLogoIcon(const QIcon& icon)
+{
+    d_->btn_logo->setIcon(icon);
+}
+
+void QmRibbonTitleBar::setLogoVisible(bool visible)
+{
+    d_->btn_logo->setVisible(visible);
 }

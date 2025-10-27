@@ -1,31 +1,96 @@
-QmRibbon QToolButton[Style="WindowButton"] {
+QmRibbonTitleBar {
+    background-color: #eeeff1;
+	
+    font-family: "Source Han Sans CN";
+    font-weight: 500;
+    font-size: 20px;
+    color: #333333;
+
+    min-height: 40px;
+    max-height: 40px;
+}
+
+QmRibbonTitleBar QToolButton[Style="WindowButton"] {
+    padding: 5px;
     padding-left: 15px;
     padding-right: 15px;
-    /*使用自定义字体*/
     font-family: "uifont";
-    /*无边框*/
     border: none;
-    /*文字颜色*/
     color: black;
-    font-size: 16px;
-    /*背景透明*/
+    font-size: 13pt;
     background: transparent;
 }
 
-QmRibbon QmRibbonTitleBar #btn_win_minimized {
+QmRibbonTitleBar QToolButton[Style="RibbonApplicationLogo"] {
+    border: none;
+    background: transparent;
+}
+
+QmRibbonTitleBar #btn_win_minimized {
     qproperty-text: "\2100";
 }
 
-QmRibbon QmRibbonTitleBar #btn_win_close {
+QmRibbonTitleBar #btn_win_close {
     qproperty-text: "\2103";
 }
 
-QmRibbon QmRibbonTitleBar #btn_win_close:hover {
+QmRibbonTitleBar #btn_win_close:hover {
     background-color: rgba(212, 64, 39, 255);
     color: #d9d6d6;
 }
 
-QmRibbon QmRibbonTitleBar #btn_win_minimized:hover,
-QmRibbon QmRibbonTitleBar #btn_win_maximized:hover {
+QmRibbonTitleBar #btn_win_minimized:hover,
+QmRibbonTitleBar #btn_win_maximized:hover {
     background-color: lightgray;
+}
+
+QmRibbonTabBar {
+    background: #efefef;
+    border: none;
+    border-top: 1px solid #cbcbcb;
+    border-bottom: 1px solid #cbcbcb;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+QmRibbonTabBar QToolButton {
+    min-width: 64px;
+    height: 14px;
+    font-family: "Source Han Sans CN";
+    font-weight: 500;
+    font-size: 16px;
+    color: #333333;
+    
+    border: none;
+    padding: 5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:checked {
+    padding-bottom: 2px;    
+    border-bottom: 3px solid lightblue;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover {
+    padding-bottom: 2px;
+    border-bottom: 3px solid lightgray;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover:checked {
+    padding-bottom: 2px;
+    border-bottom: 3px solid rgb(82, 157, 182);
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:hover {
+    background: lightblue;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:pressed {
+    padding-top: 6px;
+    padding-left: 6px;
+}
+
+QmRibbonPageContainer {
+    background: #f7f7f7;
 }

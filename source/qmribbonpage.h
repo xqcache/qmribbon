@@ -15,6 +15,8 @@ public:
     QmRibbonPage(const QString& title, const QIcon& icon, QWidget* parent = nullptr);
     ~QmRibbonPage() noexcept override;
 
+    QSize sizeHint() const override;
+
     void setTitle(const QString& title);
     void setIcon(const QIcon& icon);
 

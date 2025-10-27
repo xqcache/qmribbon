@@ -11,9 +11,19 @@ public:
     explicit QmRibbonTabBar(QWidget* parent = nullptr);
     ~QmRibbonTabBar() noexcept override;
 
-    QSize sizeHint() const override;
-
     void addTab(const QString& title, const QIcon& icon);
+    QToolButton* applicationButton() const;
+
+    void setApplicationButtonVisible(bool visible);
+
+    void activeTab(int index);
+
+signals:
+    void requestToggleFloating(QPrivateSignal);
+    void tabActivated(int index, QPrivateSignal);
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     void initUi();
