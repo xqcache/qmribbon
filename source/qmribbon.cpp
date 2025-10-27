@@ -110,9 +110,9 @@ void QmRibbon::setWindow(QMainWindow* window)
     d_->titlebar->setWindowTitle(window->windowTitle());
 }
 
-QmRibbon* QmRibbon::install(QMainWindow* window)
+QmRibbon* QmRibbon::install(QMainWindow* window, Features features)
 {
-    auto* ribbon = new QmRibbon(window);
+    auto* ribbon = new QmRibbon(window, features);
     ribbon->setWindow(window);
     return ribbon;
 }

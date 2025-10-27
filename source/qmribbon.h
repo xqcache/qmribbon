@@ -19,7 +19,7 @@ public:
         NoQuickAccessToolBar = 0x04,
         NoApplicationButton = 0x08,
         NoApplicationLogo = 0x10,
-        NoDefaultStyle = 0x11,
+        NoDefaultStyle = 0x20,
     };
     Q_ENUM(Feature)
     Q_DECLARE_FLAGS(Features, Feature)
@@ -27,7 +27,7 @@ public:
     explicit QmRibbon(QWidget* parent = nullptr, Features features = Features());
     ~QmRibbon() noexcept override;
 
-    static QmRibbon* install(QMainWindow* window);
+    static QmRibbon* install(QMainWindow* window, Features features = Features());
 
     QmRibbonTitleBar* titleBar() const;
     QmRibbonTabBar* tabBar() const;
