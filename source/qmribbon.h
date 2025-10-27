@@ -30,6 +30,9 @@ public:
 
     QmRibbonPage* addPage(const QString& title, const QIcon& icon = QIcon());
 
+    void setFeature(Feature feature, bool on = true);
+    void setFeatures(Features features, bool on = true);
+
 private:
     void initUi();
     bool event(QEvent* event) override;

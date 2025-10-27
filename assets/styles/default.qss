@@ -29,7 +29,3 @@ QmRibbon QmRibbonTitleBar #btn_win_minimized:hover,
 QmRibbon QmRibbonTitleBar #btn_win_maximized:hover {
     background-color: lightgray;
 }
-
-QmRibbon QmRibbonTitleBar #hit_area {
-    background: red;
-}

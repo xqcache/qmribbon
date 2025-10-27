@@ -40,7 +40,7 @@ struct QmRibbonPrivate {
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbonFloatContainer* float_container { nullptr };
-    QmRibbon::Features feature = QmRibbon::Features();
+    QmRibbon::Features features = QmRibbon::Features();
 };
 
 QmRibbon::QmRibbon(QWidget* parent)
@@ -85,6 +85,10 @@ void QmRibbon::initUi()
 
     d_->float_container = new QmRibbonFloatContainer(parentWidget());
     d_->float_container->setVisible(false);
+
+    d_->titlebar->setQuickAccessToolBarVisible(!d_->features.testAnyFlag(NoQuickAccessToolBar));
+    d_->titlebar->setUserInfoButtonVisible(!d_->features.testAnyFlag(NoUserInfoButton));
+    d_->titlebar->setRibbonButtonVisible(!d_->features.testAnyFlag(NoRibbonButton));
 }
 
 bool QmRibbon::event(QEvent* event)
@@ -97,6 +101,8 @@ void QmRibbon::setWindow(QMainWindow* window)
 {
     qApp->setProperty("QmRibbon-Window", QVariant::fromValue(window));
     window->setMenuWidget(this);
+    window->installEventFilter(d_->titlebar);
+    d_->titlebar->setWindowTitle(window->windowTitle());
 }
 
 QmRibbon* QmRibbon::install(QMainWindow* window)
@@ -110,10 +116,32 @@ QmRibbonPage* QmRibbon::addPage(const QString& title, const QIcon& icon)
 {
     auto* page = new QmRibbonPage(title, icon, d_->page_container);
     d_->page_container->addWidget(page);
-    d_->tabbar->addTab(icon, title);
+    d_->tabbar->addTab(title, icon);
     return page;
 }
 
 void QmRibbon::updateWidgetGeometry()
 {
+}
+
+void QmRibbon::setFeature(Feature feature, bool on)
+{
+    if (on) {
+        d_->features |= feature;
+    } else {
+        d_->features &= ~feature;
+    }
+    setFeatures(d_->features, on);
+}
+
+void QmRibbon::setFeatures(Features features, bool on)
+{
+    if (on) {
+        d_->features |= features;
+    } else {
+        d_->features &= ~features;
+    }
+    d_->titlebar->setQuickAccessToolBarVisible(!d_->features.testAnyFlag(NoQuickAccessToolBar));
+    d_->titlebar->setUserInfoButtonVisible(!d_->features.testAnyFlag(NoUserInfoButton));
+    d_->titlebar->setRibbonButtonVisible(!d_->features.testAnyFlag(NoRibbonButton));
 }
