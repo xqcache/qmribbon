@@ -1,6 +1,7 @@
 #include "qmribbontitlebar.h"
 
 #include <QApplication>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -12,8 +13,8 @@ struct QmRibbonTitleBarPrivate {
     QToolButton* btn_user_info { nullptr };
     QToolButton* btn_options { nullptr };
 
-    QToolButton* btn_win_minimum { nullptr };
-    QToolButton* btn_win_maximum { nullptr };
+    QToolButton* btn_win_minimized { nullptr };
+    QToolButton* btn_win_maximized { nullptr };
     QToolButton* btn_win_close { nullptr };
 };
 
@@ -21,6 +22,7 @@ QmRibbonTitleBar::QmRibbonTitleBar(QWidget* parent)
     : QWidget(parent)
     , d_(new QmRibbonTitleBarPrivate)
 {
+    setProperty("WindowTitleBar", true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     initUi();
     initStyleSheetKey();
@@ -60,10 +62,15 @@ void QmRibbonTitleBar::initUi()
     d_->btn_user_info->setToolTip(tr("User Information"));
     d_->btn_options->setToolTip(tr("Ribbon Options"));
 
+    d_->btn_user_info->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    d_->btn_options->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
     auto* blank_widget = new QWidget(this);
+    blank_widget->setObjectName("hit_area");
+    blank_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     blank_widget->setAttribute(Qt::WA_TransparentForMouseEvents);
-    blank_widget->setMinimumWidth(100);
-    blank_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    blank_widget->setAttribute(Qt::WA_StyledBackground, true);
+    blank_widget->setMinimumWidth(300);
 
     auto* lyt_main = new QHBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
@@ -78,19 +85,33 @@ void QmRibbonTitleBar::initUi()
 
 void QmRibbonTitleBar::initWindowButtons()
 {
-    d_->btn_win_minimum = new QToolButton(this);
-    d_->btn_win_maximum = new QToolButton(this);
+    d_->btn_win_minimized = new QToolButton(this);
+    d_->btn_win_maximized = new QToolButton(this);
     d_->btn_win_close = new QToolButton(this);
 
-    d_->btn_win_minimum->setToolTip(tr("Minimize the window"));
-    d_->btn_win_maximum->setToolTip(tr("Maximize the window"));
+    d_->btn_win_minimized->setObjectName("btn_win_minimized");
+    d_->btn_win_maximized->setObjectName("btn_win_maximized");
+    d_->btn_win_close->setObjectName("btn_win_close");
+
+    d_->btn_win_minimized->setToolTip(tr("Minimize the window"));
+    d_->btn_win_maximized->setToolTip(tr("Maximize the window"));
     d_->btn_win_close->setToolTip(tr("Close window"));
+
+    d_->btn_win_minimized->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    d_->btn_win_maximized->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    d_->btn_win_close->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+    if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+        d_->btn_win_maximized->setText(window->isMaximized() ? "\u2102" : "\u2101");
+    } else {
+        d_->btn_win_maximized->setText("\u2101");
+    }
 
     auto* lyt_win_buttons = new QHBoxLayout();
     lyt_win_buttons->setContentsMargins(0, 0, 0, 0);
     lyt_win_buttons->setSpacing(0);
-    lyt_win_buttons->addWidget(d_->btn_win_minimum);
-    lyt_win_buttons->addWidget(d_->btn_win_maximum);
+    lyt_win_buttons->addWidget(d_->btn_win_minimized);
+    lyt_win_buttons->addWidget(d_->btn_win_maximized);
     lyt_win_buttons->addWidget(d_->btn_win_close);
     static_cast<QBoxLayout*>(layout())->addLayout(lyt_win_buttons, 0);
 }
@@ -99,8 +120,8 @@ void QmRibbonTitleBar::initStyleSheetKey()
 {
     d_->btn_user_info->setProperty("Style", "UserInfoButton");
     d_->btn_win_close->setProperty("Style", "WindowButton");
-    d_->btn_win_minimum->setProperty("Style", "WindowButton");
-    d_->btn_win_maximum->setProperty("Style", "WindowButton");
+    d_->btn_win_minimized->setProperty("Style", "WindowButton");
+    d_->btn_win_maximized->setProperty("Style", "WindowButton");
 }
 
 void QmRibbonTitleBar::connectSignals()
@@ -110,10 +131,10 @@ void QmRibbonTitleBar::connectSignals()
             window->close();
         }
     });
-    connect(d_->btn_win_maximum, &QToolButton::clicked, this, [this] {
+    connect(d_->btn_win_maximized, &QToolButton::clicked, this, [this] {
         toggleWindowMaximized();
     });
-    connect(d_->btn_win_minimum, &QToolButton::clicked, this, [] {
+    connect(d_->btn_win_minimized, &QToolButton::clicked, this, [] {
         if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
             window->showMinimized();
         }
@@ -125,10 +146,12 @@ void QmRibbonTitleBar::toggleWindowMaximized()
     if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
         if (window->isMaximized()) {
             window->showNormal();
-            d_->btn_win_maximum->setToolTip(tr("Maximize the window"));
+            d_->btn_win_maximized->setText("\u2101");
+            d_->btn_win_maximized->setToolTip(tr("Maximize the window"));
         } else {
             window->showMaximized();
-            d_->btn_win_maximum->setToolTip(tr("Normalize the window"));
+            d_->btn_win_maximized->setToolTip(tr("Normalize the window"));
+            d_->btn_win_maximized->setText("\u2102");
         }
     }
 }

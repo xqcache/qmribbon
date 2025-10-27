@@ -8,8 +8,31 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QFile>
+#include <QFontDatabase>
 #include <QMainWindow>
 #include <QVBoxLayout>
+
+int qInitResources_qmribbon_assets();
+int qCleanupResources_qmribbon_assets();
+namespace {
+struct AssetsInitializer {
+    AssetsInitializer()
+    {
+        qInitResources_qmribbon_assets();
+        QFontDatabase::addApplicationFont(":/qmribbon/fonts/uifont");
+    }
+    ~AssetsInitializer() noexcept
+    {
+        qCleanupResources_qmribbon_assets();
+    }
+};
+
+void initializeAssets()
+{
+    static AssetsInitializer ins;
+}
+}
 
 struct QmRibbonPrivate {
     QmRibbonTitleBar* titlebar { nullptr };
@@ -17,19 +40,28 @@ struct QmRibbonPrivate {
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbonFloatContainer* float_container { nullptr };
+    QmRibbon::Features feature = QmRibbon::Features();
 };
 
 QmRibbon::QmRibbon(QWidget* parent)
     : QWidget(parent)
     , d_(new QmRibbonPrivate)
 {
+    initializeAssets();
     initUi();
+
+    QFile style(":/qmribbon/styles/default");
+    if (style.open(QFile::ReadOnly)) {
+        setStyleSheet(style.readAll());
+        style.close();
+    }
 }
 
 QmRibbon::~QmRibbon() noexcept
 {
     delete d_->page_container;
     delete d_;
+    qApp->setProperty("QmRibbon-Window", QVariant());
 }
 
 QmRibbonTitleBar* QmRibbon::titleBar() const
@@ -63,9 +95,6 @@ bool QmRibbon::event(QEvent* event)
 
 void QmRibbon::setWindow(QMainWindow* window)
 {
-    if (!window->windowFlags().testFlag(Qt::FramelessWindowHint)) {
-        window->setWindowFlag(Qt::FramelessWindowHint);
-    }
     qApp->setProperty("QmRibbon-Window", QVariant::fromValue(window));
     window->setMenuWidget(this);
 }

@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/qmribbon/fonts">
+        <file alias="uifont">fonts/uifont.ttf</file>
+    </qresource>
+
+    <qresource prefix="/qmribbon/styles">
+        <file alias="default">styles/default.qss</file>
+    </qresource>
+</RCC>

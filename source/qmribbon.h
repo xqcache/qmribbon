@@ -12,6 +12,14 @@ struct QmRibbonPrivate;
 class QMRIBBON_API QmRibbon : public QWidget {
     Q_OBJECT
 public:
+    enum Feature {
+        NoRibbonButton = 0x01,
+        NoUserInfoButton = 0x02,
+        NoQuickAccessToolBar = 0x04,
+    };
+    Q_ENUM(Feature)
+    Q_DECLARE_FLAGS(Features, Feature)
+
     explicit QmRibbon(QWidget* parent = nullptr);
     ~QmRibbon() noexcept override;
 
@@ -31,3 +39,5 @@ private:
 private:
     QmRibbonPrivate* d_ { nullptr };
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmRibbon::Features)

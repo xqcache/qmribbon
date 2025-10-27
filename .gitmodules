@@ -1,0 +1,3 @@
+[submodule "thirdparty/qmwidgets"]
+	path = thirdparty/qmwidgets
+	url = https://github.com/xqcache/qmwidgets.git

@@ -1,0 +1,35 @@
+QmRibbon QToolButton[Style="WindowButton"] {
+    padding-left: 15px;
+    padding-right: 15px;
+    /*使用自定义字体*/
+    font-family: "uifont";
+    /*无边框*/
+    border: none;
+    /*文字颜色*/
+    color: black;
+    font-size: 16px;
+    /*背景透明*/
+    background: transparent;
+}
+
+QmRibbon QmRibbonTitleBar #btn_win_minimized {
+    qproperty-text: "\2100";
+}
+
+QmRibbon QmRibbonTitleBar #btn_win_close {
+    qproperty-text: "\2103";
+}
+
+QmRibbon QmRibbonTitleBar #btn_win_close:hover {
+    background-color: rgba(212, 64, 39, 255);
+    color: #d9d6d6;
+}
+
+QmRibbon QmRibbonTitleBar #btn_win_minimized:hover,
+QmRibbon QmRibbonTitleBar #btn_win_maximized:hover {
+    background-color: lightgray;
+}
+
+QmRibbon QmRibbonTitleBar #hit_area {
+    background: red;
+}

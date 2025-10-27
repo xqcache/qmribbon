@@ -30,8 +30,10 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
+add_subdirectory(assets)
 add_subdirectory(source)
 
 if(QMRIBBON_BUILD_TESTS)
+    add_subdirectory(thirdparty)
     add_subdirectory(tests)
 endif()
