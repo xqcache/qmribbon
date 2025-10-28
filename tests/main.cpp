@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
+#include <QMenu>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -19,6 +19,11 @@ int main(int argc, char* argv[])
     QmFramelessWindow win;
     win.setWindowTitle("Hello ");
     win.resize(1366, 768);
+
+    auto* centeral_widget = new QWidget(&win);
+    centeral_widget->setAttribute(Qt::WA_StyledBackground);
+    centeral_widget->setStyleSheet("background: blue;");
+    win.setCentralWidget(centeral_widget);
 
     auto* ribbon = QmRibbon::install(&win);
     ribbon->setFeatures(QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar);
@@ -37,8 +42,22 @@ int main(int argc, char* argv[])
     conf_section->setWidget(conf_widget);
 
     auto* lyt_conf = new QHBoxLayout(conf_widget);
-    lyt_conf->addWidget(new QPushButton("模型配置"));
-    lyt_conf->addWidget(new QPushButton("开始仿真"));
+
+    auto* btn1 = new QToolButton(conf_widget);
+    btn1->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    btn1->setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    QIcon icon(CURRENT_PATH "/config.svg");
+    qDebug() << icon.isNull();
+    btn1->setIcon(icon);
+    btn1->setIconSize(QSize(50, 50));
+
+    auto* btn2 = new QToolButton(conf_widget);
+    btn2->setText("开始模拟");
+    btn2->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    lyt_conf->addWidget(btn1);
+    lyt_conf->addWidget(btn2);
 
     win.show();
 

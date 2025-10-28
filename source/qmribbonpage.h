@@ -18,6 +18,8 @@ public:
 
     QmRibbonSection* addSection(const QString& title, const QIcon& icon = QIcon(), QmRibbonSection::Features features = QmRibbonSection::Features());
 
+    void showAnimation();
+
 signals:
     void sectionCreated(QmRibbonSection* section, QPrivateSignal);
 

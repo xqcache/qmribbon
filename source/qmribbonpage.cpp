@@ -4,6 +4,7 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QPropertyAnimation>
 
 struct QmRibbonPagePrivate {
     QHBoxLayout* lyt_section { nullptr };
@@ -45,4 +46,15 @@ QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& ico
 QSize QmRibbonPage::sizeHint() const
 {
     return QSize(87, 100);
+}
+
+void QmRibbonPage::showAnimation()
+{
+    auto pos = this->pos();
+    auto* anim = new QPropertyAnimation(this, "pos", this);
+    anim->setStartValue(QPoint(width(), pos.y()));
+    anim->setEndValue(pos);
+    anim->setDuration(200);
+    anim->setEasingCurve(QEasingCurve::InOutBack);
+    anim->start(QPropertyAnimation::DeleteWhenStopped);
 }

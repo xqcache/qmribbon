@@ -1,6 +1,10 @@
+QmRibbon {
+    background: black;
+}
+
 QmRibbonTitleBar {
     background-color: #eeeff1;
-	
+
     font-family: "Source Han Sans CN";
     font-weight: 500;
     font-size: 20px;
@@ -60,15 +64,15 @@ QmRibbonTabBar QToolButton {
     font-weight: 500;
     font-size: 16px;
     color: #333333;
-    
+
     border: none;
     padding: 3px;
-    margin-top: 2px;
+    margin: 2px;
     margin-bottom: 5px;
 }
 
 QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:checked {
-    padding-bottom: 0px;    
+    padding-bottom: 0px;
     border-bottom: 3px solid #017AC8;
 }
 
@@ -97,9 +101,15 @@ QmRibbonPageContainer {
 
 QmRibbonPage QFrame[Style="RibbonSectionSeparator"] {
     color: #3A97D3;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 QmRibbonSection QToolButton[Style="RibbonSectionExpandButton"] {
     background: transparent;
     qproperty-icon: url(:/qmribbon/icons/expand);
+}
+
+QmRibbonFloatContainer {
+    background-color: green;
 }

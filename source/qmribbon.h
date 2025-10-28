@@ -39,10 +39,14 @@ public:
 
 protected:
     bool event(QEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     void initUi();
     void connectSignals();
+
+private slots:
+    void onContainerFloatingRequested();
 
 private:
     QmRibbonPrivate* d_ { nullptr };

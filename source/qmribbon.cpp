@@ -1,6 +1,5 @@
 #include "qmribbon.h"
 
-#include "qmribbonfloatcontainer.h"
 #include "qmribbonpage.h"
 #include "qmribbonpagecontainer.h"
 #include "qmribbonsection.h"
@@ -12,6 +11,7 @@
 #include <QFile>
 #include <QFontDatabase>
 #include <QMainWindow>
+#include <QStyle>
 #include <QVBoxLayout>
 
 int qInitResources_qmribbon_assets();
@@ -40,7 +40,6 @@ struct QmRibbonPrivate {
     QmRibbonTabBar* tabbar { nullptr };
     QmRibbonPageContainer* page_container { nullptr };
 
-    QmRibbonFloatContainer* float_container { nullptr };
     QmRibbon::Features features = QmRibbon::Features();
 };
 
@@ -53,10 +52,11 @@ QmRibbon::QmRibbon(QWidget* parent, Features features)
         initializeAssets();
         QFile style(":/qmribbon/styles/default");
         if (style.open(QFile::ReadOnly)) {
-            setStyleSheet(style.readAll());
+            qApp->setStyleSheet(style.readAll());
             style.close();
         }
     }
+    setAttribute(Qt::WA_StyledBackground, true);
     initUi();
     connectSignals();
 }
@@ -92,15 +92,22 @@ void QmRibbon::initUi()
     lyt_main->addWidget(d_->tabbar);
     lyt_main->addWidget(d_->page_container);
 
-    d_->float_container = new QmRibbonFloatContainer(parentWidget());
-    d_->float_container->setVisible(false);
-
     setFeatures(d_->features);
 }
 
 bool QmRibbon::event(QEvent* event)
 {
     return QWidget::event(event);
+}
+
+void QmRibbon::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    if (d_->page_container->property("Floating").toBool()) {
+        auto geo = d_->page_container->geometry();
+        geo.setWidth(d_->tabbar->width());
+        d_->page_container->setGeometry(geo);
+    }
 }
 
 void QmRibbon::setWindow(QMainWindow* window)
@@ -152,5 +159,30 @@ void QmRibbon::setFeatures(Features features, bool on)
 
 void QmRibbon::connectSignals()
 {
-    connect(d_->tabbar, &QmRibbonTabBar::tabActivated, d_->page_container, &QmRibbonPageContainer::setCurrentIndex);
+    connect(d_->tabbar, &QmRibbonTabBar::tabActivated, this, [this](int index) {
+        if (index == d_->page_container->currentIndex()) {
+            return;
+        }
+        d_->page_container->setCurrentIndex(index);
+        if (auto* widget = qobject_cast<QmRibbonPage*>(d_->page_container->currentWidget()); widget) {
+            widget->showAnimation();
+        }
+    });
+    connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
+}
+
+void QmRibbon::onContainerFloatingRequested()
+{
+    if (d_->page_container->parentWidget() == this) {
+        auto page_geo = d_->page_container->geometry();
+        static_cast<QBoxLayout*>(layout())->removeWidget(d_->page_container);
+        d_->page_container->setParent(parentWidget());
+        d_->page_container->setGeometry(page_geo);
+        d_->page_container->show();
+        d_->page_container->setFloating(true);
+        updateGeometry();
+    } else {
+        static_cast<QBoxLayout*>(layout())->addWidget(d_->page_container);
+        d_->page_container->setFloating(false);
+    }
 }

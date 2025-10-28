@@ -10,8 +10,6 @@ set(PRIVATE_SOURCES
     qmribbontitlebar.cpp
     qmribbonpagecontainer.h
     qmribbonpagecontainer.cpp
-    qmribbonfloatcontainer.h
-    qmribbonfloatcontainer.cpp
     qmribbonpage.h
     qmribbonpage.cpp
     qmribbonsection.h
