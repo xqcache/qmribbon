@@ -1,30 +1,67 @@
 #include "qmribbonpagecontainer.h"
 
+#include "qmimageshadowwidget.h"
+
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPropertyAnimation>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QStyleOption>
+#include <QVBoxLayout>
+
+struct QmRibbonPageContainerPrivate {
+
+    QPropertyAnimation* animation { nullptr };
+    QmImageShadowWidget* shadow_widget { nullptr };
+    QStackedWidget* container_widget { nullptr };
+};
 
 QmRibbonPageContainer::QmRibbonPageContainer(QWidget* parent)
-    : QStackedWidget(parent)
+    : QWidget(parent)
+    , d_(new QmRibbonPageContainerPrivate)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    setAttribute(Qt::WA_StyledBackground);
+    setAttribute(Qt::WA_StyledBackground, true);
+    initUi();
+}
+
+QmRibbonPageContainer::~QmRibbonPageContainer() noexcept
+{
+    delete d_;
+}
+
+void QmRibbonPageContainer::initUi()
+{
+    d_->shadow_widget = new QmImageShadowWidget(this);
+    d_->container_widget = new QStackedWidget(d_->shadow_widget);
+
+    auto* lyt_shadow = new QVBoxLayout(d_->shadow_widget);
+    lyt_shadow->setContentsMargins(0, 0, 0, 0);
+    lyt_shadow->addWidget(d_->container_widget);
+
+    auto* lyt_main = new QVBoxLayout(this);
+    lyt_main->setContentsMargins(0, 0, 0, 0);
+    lyt_main->addWidget(d_->shadow_widget);
+    d_->shadow_widget->setShadowPicture(":/qmribbon/images/white_shadow_background", QRect(10, 10, 580, 580), 5);
+    d_->shadow_widget->setShadowEnabled(false);
 }
 
 void QmRibbonPageContainer::setFloating(bool floating)
 {
     if (floating) {
         qApp->installEventFilter(this);
-        setStyleSheet("QmRibbonPageContainer {margin: 2px; margin-top: 0px; border-radius: 5px;}");
+        setAttribute(Qt::WA_StyledBackground, false);
+        d_->shadow_widget->setShadowEnabled(true);
     } else {
         qApp->removeEventFilter(this);
-        setStyleSheet("QmRibbonPageContainer{margin: 0px; border-radius: 0px;}");
+        setAttribute(Qt::WA_StyledBackground, true);
+        d_->shadow_widget->setShadowEnabled(false);
     }
     setProperty("Floating", floating);
 }
+
 bool QmRibbonPageContainer::isFloating() const
 {
     return property("Floating").toBool();
@@ -45,38 +82,89 @@ bool QmRibbonPageContainer::eventFilter(QObject* watched, QEvent* event)
         break;
     }
 
-    return QStackedWidget::eventFilter(watched, event);
+    return QWidget::eventFilter(watched, event);
+}
+
+void QmRibbonPageContainer::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    if (!d_->animation) {
+        setProperty("Size", event->size());
+    }
 }
 
 void QmRibbonPageContainer::showWithAnimation()
 {
-    if (isVisible()) {
+    if (isVisible() && !d_->animation) {
         return;
     }
     setVisible(true);
-    auto size = this->size();
-    auto* anim = new QPropertyAnimation(this, "size", this);
-    anim->setStartValue(QSize(size.width(), 0));
-    anim->setEndValue(size);
-    anim->setDuration(200);
-    anim->setEasingCurve(QEasingCurve::InOutBack);
-    anim->start(QPropertyAnimation::DeleteWhenStopped);
+
+    if (d_->animation) {
+        if (!d_->animation->property("Show").toBool()) {
+            d_->animation->stop();
+        } else {
+            return;
+        }
+    }
+    auto size = property("Size").toSize();
+    d_->animation = new QPropertyAnimation(this, "size", this);
+    d_->animation->setProperty("Show", true);
+    connect(d_->animation, &QPropertyAnimation::finished, this, [this, size] {
+        d_->animation = nullptr;
+    });
+    d_->animation->setStartValue(QSize(size.width(), 0));
+    d_->animation->setEndValue(size);
+    d_->animation->setDuration(200);
+    d_->animation->setEasingCurve(QEasingCurve::InOutBack);
+    d_->animation->start(QPropertyAnimation::DeleteWhenStopped);
 }
 
 void QmRibbonPageContainer::hideWithAnimation()
 {
-    if (!isVisible()) {
+    if (!isVisible() && !d_->animation) {
         return;
     }
-    auto size = this->size();
-    auto* anim = new QPropertyAnimation(this, "size", this);
-    connect(anim, &QPropertyAnimation::finished, this, [this, size] {
+
+    if (d_->animation) {
+        if (d_->animation->property("Show").toBool()) {
+            d_->animation->stop();
+        } else {
+            return;
+        }
+    }
+
+    auto size = property("Size").toSize();
+    d_->animation = new QPropertyAnimation(this, "size", this);
+    d_->animation->setProperty("Show", false);
+    connect(d_->animation, &QPropertyAnimation::finished, this, [this, size] {
+        d_->animation = nullptr;
         resize(size);
         setVisible(false);
     });
-    anim->setEndValue(QSize(size.width(), 0));
-    anim->setStartValue(size);
-    anim->setDuration(200);
-    anim->setEasingCurve(QEasingCurve::InOutBack);
-    anim->start(QPropertyAnimation::DeleteWhenStopped);
+    d_->animation->setEndValue(QSize(size.width(), 0));
+    d_->animation->setStartValue(size);
+    d_->animation->setDuration(200);
+    d_->animation->setEasingCurve(QEasingCurve::InOutBack);
+    d_->animation->start(QPropertyAnimation::DeleteWhenStopped);
+}
+
+int QmRibbonPageContainer::addWidget(QWidget* widget)
+{
+    return d_->container_widget->addWidget(widget);
+}
+
+QWidget* QmRibbonPageContainer::currentWidget() const
+{
+    return d_->container_widget->currentWidget();
+}
+
+int QmRibbonPageContainer::currentIndex() const
+{
+    return d_->container_widget->currentIndex();
+}
+
+void QmRibbonPageContainer::setCurrentIndex(int index)
+{
+    return d_->container_widget->setCurrentIndex(index);
 }

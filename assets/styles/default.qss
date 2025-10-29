@@ -96,7 +96,7 @@ QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:pressed {
 }
 
 QmRibbonPageContainer {
-    background: #f7f7f7;
+    background-color: #f7f7f7;
 }
 
 QmRibbonPage QFrame[Style="RibbonSectionSeparator"] {
@@ -108,8 +108,4 @@ QmRibbonPage QFrame[Style="RibbonSectionSeparator"] {
 QmRibbonSection QToolButton[Style="RibbonSectionExpandButton"] {
     background: transparent;
     qproperty-icon: url(:/qmribbon/icons/expand);
-}
-
-QmRibbonFloatContainer {
-    background-color: green;
 }
