@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
 
     auto* centeral_widget = new QWidget(&win);
     centeral_widget->setAttribute(Qt::WA_StyledBackground);
-    centeral_widget->setStyleSheet("background: blue;");
     win.setCentralWidget(centeral_widget);
 
     auto* ribbon = QmRibbon::install(&win);

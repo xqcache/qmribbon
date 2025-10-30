@@ -109,3 +109,9 @@ QmRibbonSection QToolButton[Style="RibbonSectionExpandButton"] {
     background: transparent;
     qproperty-icon: url(:/qmribbon/icons/expand);
 }
+
+QmRibbonPageContainer QmImageShadowWidget {
+    qproperty-shadowPixmap: url(:/qmribbon/images/white_shadow_background);
+    qproperty-contentGeometry: rect(10 10 580 580);
+    qproperty-blurRadius: 5;
+}

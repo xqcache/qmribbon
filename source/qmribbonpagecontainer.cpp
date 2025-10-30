@@ -44,7 +44,6 @@ void QmRibbonPageContainer::initUi()
     auto* lyt_main = new QVBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->addWidget(d_->shadow_widget);
-    d_->shadow_widget->setShadowPicture(":/qmribbon/images/white_shadow_background", QRect(10, 10, 580, 580), 5);
     d_->shadow_widget->setShadowEnabled(false);
 }
 
