@@ -11,6 +11,7 @@ public:
     enum Feature {
         NoTitle = 0x01,
         NoExpandButton = 0x02,
+        Expanding = 0x04,
     };
     Q_ENUM(Feature)
     Q_DECLARE_FLAGS(Features, Feature)

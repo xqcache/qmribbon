@@ -41,7 +41,7 @@ void QmRibbonSection::initUi()
 
     auto* lyt_main = new QVBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
-    lyt_main->addWidget(d_->btn_section, 1);
+    lyt_main->addWidget(d_->btn_section, 1, Qt::AlignCenter);
     lyt_main->addWidget(d_->btn_expand, 0, Qt::AlignRight);
     lyt_main->setSpacing(0);
 
@@ -108,6 +108,9 @@ void QmRibbonSection::resizeEvent(QResizeEvent* event)
 
 QSize QmRibbonSection::sizeHint() const
 {
+    if (d_->widget) {
+        return d_->widget->layout()->totalSizeHint();
+    }
     QSize size = QWidget::sizeHint();
     int expand_width = d_->features.testAnyFlag(NoExpandButton) ? 0 : d_->btn_expand->width() * 2;
     int title_width = d_->features.testAnyFlag(NoTitle) ? 0 : fontMetrics().boundingRect(d_->btn_section->text()).width();
@@ -154,7 +157,8 @@ void QmRibbonSection::setFeatures(Features features, bool on)
     } else {
         d_->features &= ~features;
     }
-    d_->btn_expand->setVisible(!d_->features.testAnyFlag(NoExpandButton));
+    d_->btn_expand->setVisible(!(d_->features & NoExpandButton));
+    setSizePolicy(d_->features.testAnyFlag(Expanding) ? QSizePolicy::Expanding : QSizePolicy::Preferred, QSizePolicy::Expanding);
     update();
 }
 
