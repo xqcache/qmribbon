@@ -174,8 +174,15 @@ void QmRibbon::connectSignals()
 void QmRibbon::onContainerFloatingRequested()
 {
     if (d_->page_container->parentWidget() == this) {
+        QPoint top_left(0, 0);
         auto page_geo = d_->page_container->geometry();
+        if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+            top_left.setX(window->contentsMargins().left());
+            top_left.setY(window->contentsMargins().top());
+            page_geo.setWidth(window->width() - (window->contentsMargins().left() + window->contentsMargins().right()));
+        }
         static_cast<QBoxLayout*>(layout())->removeWidget(d_->page_container);
+        page_geo.moveTopLeft(page_geo.topLeft() + top_left);
         d_->page_container->setParent(parentWidget());
         d_->page_container->setGeometry(page_geo);
         d_->page_container->show();
