@@ -23,6 +23,9 @@ public:
 signals:
     void sectionCreated(QmRibbonSection* section, QPrivateSignal);
 
+protected:
+    void changeEvent(QEvent* event) override;
+
 private:
     QmRibbonPagePrivate* d_ { nullptr };
 };

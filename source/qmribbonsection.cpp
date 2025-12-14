@@ -1,5 +1,6 @@
 #include "qmribbonsection.h"
 
+#include <QEvent>
 #include <QLabel>
 #include <QPainter>
 #include <QToolButton>
@@ -45,20 +46,23 @@ void QmRibbonSection::initUi()
     lyt_main->addWidget(d_->btn_expand, 0, Qt::AlignRight);
     lyt_main->setSpacing(0);
 
+    d_->btn_section->setVisible(false);
+
     if (d_->widget) {
-        if (!isWidthSufficient()) {
-            d_->btn_section->setVisible(true);
-            d_->widget->setVisible(false);
-        } else {
-            d_->btn_section->setVisible(false);
-            d_->widget->setVisible(true);
-        }
+        // if (!isWidthSufficient()) {
+        //     d_->btn_section->setVisible(true);
+        //     d_->widget->setVisible(false);
+        // } else {
+        //     d_->btn_section->setVisible(false);
+        //     d_->widget->setVisible(true);
+        // }
     }
 }
 
 void QmRibbonSection::setTitle(const QString& title)
 {
     d_->btn_section->setText(title);
+    d_->btn_section->setProperty("RawText", title);
 }
 
 void QmRibbonSection::setIcon(const QIcon& icon)
@@ -80,30 +84,30 @@ void QmRibbonSection::setWidget(QWidget* widget)
     d_->widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     static_cast<QBoxLayout*>(layout())->insertWidget(1, d_->widget, 1);
 
-    if (!isWidthSufficient()) {
-        d_->btn_section->setVisible(true);
-        d_->widget->setVisible(false);
-    } else {
-        d_->btn_section->setVisible(false);
-        d_->widget->setVisible(true);
-    }
+    // if (!isWidthSufficient()) {
+    //     d_->btn_section->setVisible(true);
+    //     d_->widget->setVisible(false);
+    // } else {
+    //     d_->btn_section->setVisible(false);
+    //     d_->widget->setVisible(true);
+    // }
 }
 
 void QmRibbonSection::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
 
-    if (!d_->widget) {
-        d_->btn_section->setVisible(true);
-        return;
-    }
-    if (!isWidthSufficient()) {
-        d_->btn_section->setVisible(true);
-        d_->widget->setVisible(false);
-    } else {
-        d_->btn_section->setVisible(false);
-        d_->widget->setVisible(true);
-    }
+    // if (!d_->widget) {
+    //     d_->btn_section->setVisible(true);
+    //     return;
+    // }
+    // if (!isWidthSufficient()) {
+    //     d_->btn_section->setVisible(true);
+    //     d_->widget->setVisible(false);
+    // } else {
+    //     d_->btn_section->setVisible(false);
+    //     d_->widget->setVisible(true);
+    // }
 }
 
 QSize QmRibbonSection::sizeHint() const
@@ -165,4 +169,11 @@ void QmRibbonSection::setFeatures(Features features, bool on)
 QmRibbonSection::Features QmRibbonSection::features() const
 {
     return d_->features;
+}
+
+void QmRibbonSection::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+    }
+    QWidget::changeEvent(event);
 }

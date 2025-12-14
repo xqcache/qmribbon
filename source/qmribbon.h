@@ -40,6 +40,7 @@ public:
 protected:
     bool event(QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
 private:
     void initUi();

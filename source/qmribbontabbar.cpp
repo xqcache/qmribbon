@@ -97,3 +97,10 @@ void QmRibbonTabBar::activeTab(int index)
     }
     buttons[index]->setChecked(true);
 }
+
+void QmRibbonTabBar::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+    }
+    QWidget::changeEvent(event);
+}

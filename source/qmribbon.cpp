@@ -193,3 +193,11 @@ void QmRibbon::onContainerFloatingRequested()
         d_->page_container->setFloating(false);
     }
 }
+
+void QmRibbon::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        // ui_->retranslateUi(this);
+    }
+    QWidget::changeEvent(event);
+}

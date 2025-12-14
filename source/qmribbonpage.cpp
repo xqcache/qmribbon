@@ -2,6 +2,7 @@
 
 #include "qmribbonsection.h"
 
+#include <QEvent>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QPropertyAnimation>
@@ -32,14 +33,14 @@ QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& ico
         separator->setProperty("Style", "RibbonSectionSeparator");
         separator->setLineWidth(2);
         separator->setFrameShape(QFrame::VLine);
-        d_->lyt_section->insertWidget(d_->lyt_section->count() , separator);
+        d_->lyt_section->insertWidget(d_->lyt_section->count(), separator);
     }
 
     auto* section = new QmRibbonSection(this);
     section->setTitle(title);
     section->setIcon(icon);
     section->setFeatures(features);
-    d_->lyt_section->insertWidget(d_->lyt_section->count() , section);
+    d_->lyt_section->insertWidget(d_->lyt_section->count(), section);
 
     emit sectionCreated(section, QPrivateSignal());
     return section;
@@ -47,7 +48,7 @@ QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& ico
 
 QSize QmRibbonPage::sizeHint() const
 {
-    return QSize(87, 100);
+    return QSize(87, 80);
 }
 
 void QmRibbonPage::showAnimation()
@@ -59,4 +60,12 @@ void QmRibbonPage::showAnimation()
     anim->setDuration(200);
     anim->setEasingCurve(QEasingCurve::InOutBack);
     anim->start(QPropertyAnimation::DeleteWhenStopped);
+}
+
+void QmRibbonPage::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+
+    }
+    QWidget::changeEvent(event);
 }
