@@ -50,13 +50,20 @@ void QmRibbonPageContainer::initUi()
 void QmRibbonPageContainer::setFloating(bool floating)
 {
     if (floating) {
+        setProperty("geo", geometry());
         qApp->installEventFilter(this);
         setAttribute(Qt::WA_StyledBackground, false);
         d_->shadow_widget->setShadowEnabled(true);
+
+        auto geo = geometry();
+        geo.setHeight(geo.height() + d_->shadow_widget->contentGeometry().y());
+        setGeometry(geo);
+
     } else {
         qApp->removeEventFilter(this);
         setAttribute(Qt::WA_StyledBackground, true);
         d_->shadow_widget->setShadowEnabled(false);
+        setGeometry(property("geo").toRect());
     }
     setProperty("Floating", floating);
 }

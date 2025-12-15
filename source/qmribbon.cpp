@@ -187,6 +187,7 @@ void QmRibbon::onContainerFloatingRequested()
         d_->page_container->setGeometry(page_geo);
         d_->page_container->show();
         d_->page_container->setFloating(true);
+        d_->page_container->updateGeometry();
         updateGeometry();
     } else {
         static_cast<QBoxLayout*>(layout())->addWidget(d_->page_container);
