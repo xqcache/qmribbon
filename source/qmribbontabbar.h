@@ -11,7 +11,7 @@ public:
     explicit QmRibbonTabBar(QWidget* parent = nullptr);
     ~QmRibbonTabBar() noexcept override;
 
-    void addTab(const QString& title, const QIcon& icon);
+    QToolButton* addTab(const QString& title, const QIcon& icon);
     QToolButton* applicationButton() const;
 
     void setApplicationButtonVisible(bool visible);

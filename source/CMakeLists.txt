@@ -12,6 +12,8 @@ set(PRIVATE_SOURCES
     qmribbonpagecontainer.cpp
     qmribbonpage.h
     qmribbonpage.cpp
+    qmribbonapppage.h
+    qmribbonapppage.cpp
     qmribbonsection.h
     qmribbonsection.cpp
 )
@@ -39,5 +41,5 @@ else()
 endif()
 
 target_sources(${TARGET_NAME} PRIVATE ${PRIVATE_SOURCES})
-target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Widgets PRIVATE qmribbon_assets qmwidgets)
+target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Widgets qmwidgets PRIVATE qmribbon_assets)
 target_include_directories(${TARGET_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>" "$<INSTALL_INTERFACE:include>")

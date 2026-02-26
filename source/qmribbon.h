@@ -6,6 +6,7 @@
 
 class QMainWindow;
 class QmRibbonPage;
+class QmRibbonAppPage;
 class QmRibbonTabBar;
 class QmRibbonTitleBar;
 
@@ -33,9 +34,20 @@ public:
     QmRibbonTabBar* tabBar() const;
     QmRibbonPage* addPage(const QString& title, const QIcon& icon = QIcon());
 
-    void setWindow(QMainWindow* window);
+    QmRibbonAppPage* appPage() const;
+
+    QToolButton* pageButton(QmRibbonPage* page) const;
+    QmRibbonPage* findPage(const QString& object_name) const;
+    QToolButton* findPageButton(const QString& object_name) const;
+
+    void setMainWindow(QMainWindow* window);
     void setFeature(Feature feature, bool on = true);
     void setFeatures(Features features, bool on = true);
+
+    QMainWindow* mainWindow() const;
+
+signals:
+    void mainWindowChanged(QMainWindow* win);
 
 protected:
     bool event(QEvent* event) override;

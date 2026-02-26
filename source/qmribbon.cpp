@@ -1,5 +1,6 @@
 #include "qmribbon.h"
 
+#include "qmribbonapppage.h"
 #include "qmribbonpage.h"
 #include "qmribbonpagecontainer.h"
 #include "qmribbonsection.h"
@@ -12,6 +13,7 @@
 #include <QFontDatabase>
 #include <QMainWindow>
 #include <QStyle>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 int qInitResources_qmribbon_assets();
@@ -36,11 +38,15 @@ void initializeAssets()
 }
 
 struct QmRibbonPrivate {
+    QMainWindow* window { nullptr };
     QmRibbonTitleBar* titlebar { nullptr };
     QmRibbonTabBar* tabbar { nullptr };
+    QmRibbonAppPage* app_page { nullptr };
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbon::Features features = QmRibbon::Features();
+
+    std::map<QmRibbonPage*, QToolButton*> page_buttons;
 };
 
 QmRibbon::QmRibbon(QWidget* parent, Features features)
@@ -80,6 +86,7 @@ QmRibbonTabBar* QmRibbon::tabBar() const
 
 void QmRibbon::initUi()
 {
+    d_->app_page = new QmRibbonAppPage(this);
     QVBoxLayout* lyt_main = new QVBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->setSpacing(0);
@@ -110,18 +117,33 @@ void QmRibbon::resizeEvent(QResizeEvent* event)
     }
 }
 
-void QmRibbon::setWindow(QMainWindow* window)
+void QmRibbon::setMainWindow(QMainWindow* window)
 {
+    if (d_->window == window) {
+        return;
+    }
+    d_->window = window;
     qApp->setProperty("QmRibbon-Window", QVariant::fromValue(window));
     window->setMenuWidget(this);
     window->installEventFilter(d_->titlebar);
     d_->titlebar->setWindowTitle(window->windowTitle());
+    emit mainWindowChanged(d_->window);
+}
+
+QMainWindow* QmRibbon::mainWindow() const
+{
+    return d_->window;
+}
+
+QmRibbonAppPage* QmRibbon::appPage() const
+{
+    return d_->app_page;
 }
 
 QmRibbon* QmRibbon::install(QMainWindow* window, Features features)
 {
     auto* ribbon = new QmRibbon(window, features);
-    ribbon->setWindow(window);
+    ribbon->setMainWindow(window);
     return ribbon;
 }
 
@@ -129,8 +151,31 @@ QmRibbonPage* QmRibbon::addPage(const QString& title, const QIcon& icon)
 {
     auto* page = new QmRibbonPage(d_->page_container);
     d_->page_container->addWidget(page);
-    d_->tabbar->addTab(title, icon);
+    auto* tab_button = d_->tabbar->addTab(title, icon);
+    d_->page_buttons.emplace(page, tab_button);
     return page;
+}
+
+QToolButton* QmRibbon::pageButton(QmRibbonPage* page) const
+{
+    if (!page) {
+        return nullptr;
+    }
+    auto it = d_->page_buttons.find(page);
+    if (it != d_->page_buttons.end()) {
+        return it->second;
+    }
+    return nullptr;
+}
+
+QmRibbonPage* QmRibbon::findPage(const QString& object_name) const
+{
+    return d_->page_container->findChild<QmRibbonPage*>(object_name);
+}
+
+QToolButton* QmRibbon::findPageButton(const QString& object_name) const
+{
+    return pageButton(findPage(object_name));
 }
 
 void QmRibbon::setFeature(Feature feature, bool on)
@@ -169,6 +214,10 @@ void QmRibbon::connectSignals()
         }
     });
     connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
+
+    connect(d_->tabbar->applicationButton(), &QToolButton::clicked, this, [this] {
+        d_->app_page->exec();
+    });
 }
 
 void QmRibbon::onContainerFloatingRequested()

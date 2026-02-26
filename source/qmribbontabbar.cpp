@@ -10,7 +10,6 @@
 struct QmRibbonTabBarPrivate {
     QToolButton* app_button { nullptr };
     QButtonGroup* tab_button_group { nullptr };
-    QList<QToolButton*> tab_buttons;
 };
 
 QmRibbonTabBar::QmRibbonTabBar(QWidget* parent)
@@ -47,7 +46,7 @@ void QmRibbonTabBar::initUi()
     });
 }
 
-void QmRibbonTabBar::addTab(const QString& title, const QIcon& icon)
+QToolButton* QmRibbonTabBar::addTab(const QString& title, const QIcon& icon)
 {
     auto* tab_button = new QToolButton(this);
     tab_button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -62,6 +61,7 @@ void QmRibbonTabBar::addTab(const QString& title, const QIcon& icon)
     if (d_->tab_button_group->buttons().size() == 1) {
         tab_button->setChecked(true);
     }
+    return tab_button;
 }
 
 QToolButton* QmRibbonTabBar::applicationButton() const
