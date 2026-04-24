@@ -6,7 +6,7 @@
 
 class QMainWindow;
 class QmRibbonPage;
-class QmRibbonAppPage;
+class QmRibbonWelcomeDialog;
 class QmRibbonTabBar;
 class QmRibbonTitleBar;
 
@@ -14,6 +14,8 @@ struct QmRibbonPrivate;
 class QMRIBBON_API QmRibbon : public QWidget {
     Q_OBJECT
 public:
+    constexpr static auto kRibbonObjectName = "QmRibbon";
+
     enum Feature {
         NoRibbonButton = 0x01,
         NoUserInfoButton = 0x02,
@@ -34,7 +36,7 @@ public:
     QmRibbonTabBar* tabBar() const;
     QmRibbonPage* addPage(const QString& title, const QIcon& icon = QIcon());
 
-    QmRibbonAppPage* appPage() const;
+    QmRibbonWelcomeDialog* welcomeDialog() const;
 
     QToolButton* pageButton(QmRibbonPage* page) const;
     QmRibbonPage* findPage(const QString& object_name) const;

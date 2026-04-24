@@ -1,11 +1,11 @@
 #include "qmribbon.h"
 
-#include "qmribbonapppage.h"
 #include "qmribbonpage.h"
 #include "qmribbonpagecontainer.h"
 #include "qmribbonsection.h"
 #include "qmribbontabbar.h"
 #include "qmribbontitlebar.h"
+#include "qmribbonwelcomedialog.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -41,7 +41,7 @@ struct QmRibbonPrivate {
     QMainWindow* window { nullptr };
     QmRibbonTitleBar* titlebar { nullptr };
     QmRibbonTabBar* tabbar { nullptr };
-    QmRibbonAppPage* app_page { nullptr };
+    QmRibbonWelcomeDialog* welcome_dlg { nullptr };
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbon::Features features = QmRibbon::Features();
@@ -69,6 +69,10 @@ QmRibbon::QmRibbon(QWidget* parent, Features features)
 
 QmRibbon::~QmRibbon() noexcept
 {
+    if (!d_->welcome_dlg->parent()) {
+        delete d_->welcome_dlg;
+    }
+
     delete d_->page_container;
     delete d_;
     qApp->setProperty("QmRibbon-Window", QVariant());
@@ -86,7 +90,7 @@ QmRibbonTabBar* QmRibbon::tabBar() const
 
 void QmRibbon::initUi()
 {
-    d_->app_page = new QmRibbonAppPage(this);
+    d_->welcome_dlg = new QmRibbonWelcomeDialog(this);
     QVBoxLayout* lyt_main = new QVBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->setSpacing(0);
@@ -123,7 +127,7 @@ void QmRibbon::setMainWindow(QMainWindow* window)
         return;
     }
     d_->window = window;
-    qApp->setProperty("QmRibbon-Window", QVariant::fromValue(window));
+    qApp->setProperty(QmRibbon::kRibbonObjectName, QVariant::fromValue(window));
     window->setMenuWidget(this);
     window->installEventFilter(d_->titlebar);
     d_->titlebar->setWindowTitle(window->windowTitle());
@@ -135,15 +139,17 @@ QMainWindow* QmRibbon::mainWindow() const
     return d_->window;
 }
 
-QmRibbonAppPage* QmRibbon::appPage() const
+QmRibbonWelcomeDialog* QmRibbon::welcomeDialog() const
 {
-    return d_->app_page;
+    return d_->welcome_dlg;
 }
 
 QmRibbon* QmRibbon::install(QMainWindow* window, Features features)
 {
     auto* ribbon = new QmRibbon(window, features);
     ribbon->setMainWindow(window);
+    ribbon->welcomeDialog()->setWindowIcon(window->windowIcon());
+    ribbon->welcomeDialog()->setParent(window, ribbon->welcomeDialog()->windowFlags());
     return ribbon;
 }
 
@@ -216,7 +222,7 @@ void QmRibbon::connectSignals()
     connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
 
     connect(d_->tabbar->applicationButton(), &QToolButton::clicked, this, [this] {
-        d_->app_page->exec();
+        d_->welcome_dlg->execOverMainWindow();
     });
 }
 
@@ -225,7 +231,7 @@ void QmRibbon::onContainerFloatingRequested()
     if (d_->page_container->parentWidget() == this) {
         QPoint top_left(0, 0);
         auto page_geo = d_->page_container->geometry();
-        if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+        if (auto* window = qApp->property(QmRibbon::kRibbonObjectName).value<QMainWindow*>()) {
             top_left.setX(window->contentsMargins().left());
             top_left.setY(window->contentsMargins().top());
             page_geo.setWidth(window->width() - (window->contentsMargins().left() + window->contentsMargins().right()));

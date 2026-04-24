@@ -12,10 +12,12 @@ set(PRIVATE_SOURCES
     qmribbonpagecontainer.cpp
     qmribbonpage.h
     qmribbonpage.cpp
-    qmribbonapppage.h
-    qmribbonapppage.cpp
     qmribbonsection.h
     qmribbonsection.cpp
+    qmribbonwelcomedialog.h
+    qmribbonwelcomedialog.cpp
+    qmribbonwelcomepage.cpp
+    qmribbonwelcomepage.h
 )
 
 find_package(QT NAMES Qt6 CONFIG REQUIRED COMPONENTS Widgets)

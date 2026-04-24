@@ -1,4 +1,4 @@
-#include "qmribbonapppage.h"
+#include "qmribbonwelcomedialog.h"
 
 #include "qmribbon.h"
 
@@ -6,9 +6,12 @@
 #include <QHBoxLayout>
 #include <QMainWindow>
 #include <QResizeEvent>
+#include <QScreen>
 #include <QSpacerItem>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QWindow>
 
 namespace {
 Qt::WindowStates windowStatesForSync(Qt::WindowStates states)
@@ -16,27 +19,35 @@ Qt::WindowStates windowStatesForSync(Qt::WindowStates states)
     return states & (Qt::WindowMinimized | Qt::WindowMaximized | Qt::WindowFullScreen);
 }
 
-void syncWindowFromMainWindow(QWidget* window, QMainWindow* main_win)
+void syncWindowFromMainWindow(QWidget* dialog, QMainWindow* main_win)
 {
-    if (!window || !main_win) {
+    if (!dialog || !main_win) {
         return;
     }
-    window->setGeometry(main_win->geometry());
-    window->setWindowState(windowStatesForSync(main_win->windowState()));
+
+    const QSize minimum_size = { qMax(dialog->minimumSize().width(), main_win->minimumSize().width()),
+        qMax(dialog->minimumSize().height(), main_win->minimumSize().height()) };
+
+    main_win->setMinimumSize(minimum_size);
+    dialog->setMinimumSize(minimum_size);
+
+    if (dialog->isWindow()) {
+        dialog->setGeometry(main_win->frameGeometry());
+        dialog->setWindowState(windowStatesForSync(main_win->windowState()));
+    }
 }
 }
 
-struct QmRibbonAppPagePrivate {
+struct QmRibbonWelcomeDialogPrivate {
     QmRibbon* ribbon { nullptr };
-    QToolButton* btn_back { nullptr };
     QToolButton* btn_win_minimized { nullptr };
     QToolButton* btn_win_maximized { nullptr };
     QToolButton* btn_win_close { nullptr };
 };
 
-QmRibbonAppPage::QmRibbonAppPage(QmRibbon* ribbon)
-    : QmFramelessDialog(ribbon)
-    , d_(new QmRibbonAppPagePrivate)
+QmRibbonWelcomeDialog::QmRibbonWelcomeDialog(QmRibbon* ribbon)
+    : QmFramelessDialog()
+    , d_(new QmRibbonWelcomeDialogPrivate)
 {
     d_->ribbon = ribbon;
 
@@ -44,20 +55,42 @@ QmRibbonAppPage::QmRibbonAppPage(QmRibbon* ribbon)
     connectSignals();
 }
 
-QmRibbonAppPage::~QmRibbonAppPage() noexcept
+QmRibbonWelcomeDialog::~QmRibbonWelcomeDialog() noexcept
 {
     delete d_;
 }
 
-void QmRibbonAppPage::showEvent(QShowEvent* event)
+int QmRibbonWelcomeDialog::execOverMainWindow(bool first_show)
 {
-    d_->btn_back->setVisible(d_->ribbon->mainWindow()->isVisible());
+    auto* main_win = d_->ribbon->mainWindow();
+    if (!main_win) {
+        return exec();
+    }
+    main_win->setWindowOpacity(0);
+    syncWindowFromMainWindow(this, main_win);
 
+    if (auto* welcome_page = qobject_cast<QmRibbonWelcomePage*>(widget()); welcome_page) {
+        welcome_page->setAsFirstShow(first_show);
+    }
+
+    const int dialog_code = exec();
+
+    raise();
+    activateWindow();
+
+    main_win->setGeometry(geometry());
+    main_win->setWindowOpacity(1.0);
+
+    return dialog_code;
+}
+
+void QmRibbonWelcomeDialog::showEvent(QShowEvent* event)
+{
     syncWindowFromMainWindow(this, d_->ribbon->mainWindow());
     QmFramelessDialog::showEvent(event);
 }
 
-bool QmRibbonAppPage::eventFilter(QObject* watched, QEvent* event)
+bool QmRibbonWelcomeDialog::eventFilter(QObject* watched, QEvent* event)
 {
     if (watched == d_->ribbon->mainWindow()) {
         switch (event->type()) {
@@ -70,27 +103,16 @@ bool QmRibbonAppPage::eventFilter(QObject* watched, QEvent* event)
             break;
         }
     }
-
     return QmFramelessDialog::eventFilter(watched, event);
 }
 
-QToolButton* QmRibbonAppPage::backButton() const
-{
-    return d_->btn_back;
-}
-
-void QmRibbonAppPage::initUi()
+void QmRibbonWelcomeDialog::initUi()
 {
     QWidget* titlebar = new QWidget(this);
     QHBoxLayout* lyt_titlebar = new QHBoxLayout(titlebar);
     lyt_titlebar->setContentsMargins(0, 0, 0, 0);
 
-    d_->btn_back = new QToolButton(this);
-    d_->btn_back->setObjectName("AppPageBackButton");
-    d_->btn_back->setText(tr("Back"));
-    d_->btn_back->setToolTip(tr("Return to the main interface."));
     lyt_titlebar->addSpacerItem(new QSpacerItem(10, 0));
-    lyt_titlebar->addWidget(d_->btn_back);
     lyt_titlebar->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Expanding));
 
     QHBoxLayout* lyt_button_area = new QHBoxLayout;
@@ -116,7 +138,7 @@ void QmRibbonAppPage::initUi()
     setTitleBar(titlebar);
 }
 
-void QmRibbonAppPage::connectSignals()
+void QmRibbonWelcomeDialog::connectSignals()
 {
     connect(d_->ribbon, &QmRibbon::mainWindowChanged, this, [this](QMainWindow* main_win) {
         if (!main_win) {
@@ -137,12 +159,12 @@ void QmRibbonAppPage::connectSignals()
         }
         showMinimized();
     });
-    connect(d_->btn_back, &QToolButton::clicked, this, [this] {
-        accept();
-    });
-    connect(this, &QmFramelessDialog::accepted, this, [this] {
-        if (!d_->ribbon->mainWindow()->isVisible()) {
-            d_->ribbon->mainWindow()->show();
-        }
-    });
+}
+
+void QmRibbonWelcomeDialog::setPage(QmRibbonWelcomePage* page)
+{
+    if (!page) {
+        return;
+    }
+    setWidget(page);
 }
