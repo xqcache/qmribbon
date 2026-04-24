@@ -75,7 +75,7 @@ QmRibbon::~QmRibbon() noexcept
 
     delete d_->page_container;
     delete d_;
-    qApp->setProperty("QmRibbon-Window", QVariant());
+    qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant());
 }
 
 QmRibbonTitleBar* QmRibbon::titleBar() const
@@ -127,7 +127,7 @@ void QmRibbon::setMainWindow(QMainWindow* window)
         return;
     }
     d_->window = window;
-    qApp->setProperty(QmRibbon::kRibbonObjectName, QVariant::fromValue(window));
+    qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant::fromValue(window));
     window->setMenuWidget(this);
     window->installEventFilter(d_->titlebar);
     d_->titlebar->setWindowTitle(window->windowTitle());
@@ -231,7 +231,7 @@ void QmRibbon::onContainerFloatingRequested()
     if (d_->page_container->parentWidget() == this) {
         QPoint top_left(0, 0);
         auto page_geo = d_->page_container->geometry();
-        if (auto* window = qApp->property(QmRibbon::kRibbonObjectName).value<QMainWindow*>()) {
+        if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
             top_left.setX(window->contentsMargins().left());
             top_left.setY(window->contentsMargins().top());
             page_geo.setWidth(window->width() - (window->contentsMargins().left() + window->contentsMargins().right()));

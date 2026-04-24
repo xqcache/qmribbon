@@ -14,7 +14,7 @@ struct QmRibbonPrivate;
 class QMRIBBON_API QmRibbon : public QWidget {
     Q_OBJECT
 public:
-    constexpr static auto kRibbonObjectName = "QmRibbon";
+    constexpr static auto kRibbonWindowPropName = "QmRibbon-Window";
 
     enum Feature {
         NoRibbonButton = 0x01,

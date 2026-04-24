@@ -1,5 +1,7 @@
 #include "qmribbontitlebar.h"
 
+#include "qmribbon.h"
+
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QMainWindow>
@@ -151,7 +153,7 @@ void QmRibbonTitleBar::initWindowButtons()
     d_->btn_win_maximized->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     d_->btn_win_close->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-    if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+    if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
         d_->btn_win_maximized->setText(window->isMaximized() ? "\u2102" : "\u2101");
     } else {
         d_->btn_win_maximized->setText("\u2101");
@@ -176,7 +178,7 @@ void QmRibbonTitleBar::initStyleSheetKey()
 
 void QmRibbonTitleBar::initWidgetData()
 {
-    if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+    if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
         setWindowTitle(window->windowTitle());
     }
 }
@@ -184,7 +186,7 @@ void QmRibbonTitleBar::initWidgetData()
 void QmRibbonTitleBar::connectSignals()
 {
     connect(d_->btn_win_close, &QToolButton::clicked, this, [] {
-        if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+        if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
             window->close();
         }
     });
@@ -192,7 +194,7 @@ void QmRibbonTitleBar::connectSignals()
         toggleWindowMaximized();
     });
     connect(d_->btn_win_minimized, &QToolButton::clicked, this, [] {
-        if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+        if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
             window->showMinimized();
         }
     });
@@ -200,7 +202,7 @@ void QmRibbonTitleBar::connectSignals()
 
 void QmRibbonTitleBar::toggleWindowMaximized()
 {
-    if (auto* window = qApp->property("QmRibbon-Window").value<QMainWindow*>()) {
+    if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {
         if (window->isMaximized()) {
             window->showNormal();
         } else {
