@@ -19,6 +19,7 @@ public:
 
     int execOverMainWindow(bool first_show = false);
     void setPage(QmRibbonWelcomePage* page);
+    QmRibbonWelcomePage* page() const;
 
 protected:
     void showEvent(QShowEvent* event) override;

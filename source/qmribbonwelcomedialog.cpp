@@ -168,3 +168,8 @@ void QmRibbonWelcomeDialog::setPage(QmRibbonWelcomePage* page)
     }
     setWidget(page);
 }
+
+QmRibbonWelcomePage* QmRibbonWelcomeDialog::page() const
+{
+    return qobject_cast<QmRibbonWelcomePage*>(widget());
+}

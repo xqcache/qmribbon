@@ -128,6 +128,7 @@ void QmRibbon::setMainWindow(QMainWindow* window)
     }
     d_->window = window;
     qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant::fromValue(window));
+    qApp->setProperty(QmRibbon::kRibbonPropName, QVariant::fromValue(this));
     window->setMenuWidget(this);
     window->installEventFilter(d_->titlebar);
     d_->titlebar->setWindowTitle(window->windowTitle());

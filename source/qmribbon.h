@@ -15,6 +15,7 @@ class QMRIBBON_API QmRibbon : public QWidget {
     Q_OBJECT
 public:
     constexpr static auto kRibbonWindowPropName = "QmRibbon-Window";
+    constexpr static auto kRibbonPropName = "QmRibbon";
 
     enum Feature {
         NoRibbonButton = 0x01,

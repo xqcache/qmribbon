@@ -20,7 +20,7 @@ void QmRibbonWelcomePage::setAsFirstShow(bool first_show)
 
 QmRibbonWelcomeDialog* QmRibbonWelcomePage::welcomeDialog() const
 {
-    if (auto* ribbon = qApp->property(QmRibbon::kRibbonWindowPropName).value<QmRibbon*>()) {
+    if (auto* ribbon = qApp->property(QmRibbon::kRibbonPropName).value<QmRibbon*>()) {
         return ribbon->welcomeDialog();
     }
     return nullptr;
