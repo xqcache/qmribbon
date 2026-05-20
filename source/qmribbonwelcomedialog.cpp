@@ -109,6 +109,7 @@ bool QmRibbonWelcomeDialog::eventFilter(QObject* watched, QEvent* event)
 void QmRibbonWelcomeDialog::initUi()
 {
     QWidget* titlebar = new QWidget(this);
+    titlebar->setProperty("WindowTitleBar", true);
     QHBoxLayout* lyt_titlebar = new QHBoxLayout(titlebar);
     lyt_titlebar->setContentsMargins(0, 0, 0, 0);
 
