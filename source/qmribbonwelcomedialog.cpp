@@ -5,6 +5,7 @@
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QMainWindow>
+#include <QPointer>
 #include <QResizeEvent>
 #include <QScreen>
 #include <QSpacerItem>
@@ -34,6 +35,32 @@ void syncWindowFromMainWindow(QWidget* dialog, QMainWindow* main_win)
     if (dialog->isWindow()) {
         dialog->setGeometry(main_win->frameGeometry());
         dialog->setWindowState(windowStatesForSync(main_win->windowState()));
+    }
+}
+
+void refreshWidgetTree(QWidget* widget)
+{
+    if (!widget) {
+        return;
+    }
+
+    if (auto* widget_layout = widget->layout(); widget_layout) {
+        widget_layout->invalidate();
+        widget_layout->activate();
+    }
+    widget->updateGeometry();
+    widget->update();
+    widget->repaint();
+
+    const auto child_widgets = widget->findChildren<QWidget*>();
+    for (QWidget* child_widget : child_widgets) {
+        if (auto* child_layout = child_widget->layout(); child_layout) {
+            child_layout->invalidate();
+            child_layout->activate();
+        }
+        child_widget->updateGeometry();
+        child_widget->update();
+        child_widget->repaint();
     }
 }
 }
@@ -80,6 +107,18 @@ int QmRibbonWelcomeDialog::execOverMainWindow(bool first_show)
 
     main_win->setGeometry(geometry());
     main_win->setWindowOpacity(1.0);
+    main_win->show();
+    main_win->raise();
+    main_win->activateWindow();
+    refreshWidgetTree(main_win);
+
+    QPointer<QMainWindow> guarded_main_win(main_win);
+    QTimer::singleShot(0, main_win, [guarded_main_win] {
+        if (!guarded_main_win || !guarded_main_win->isVisible()) {
+            return;
+        }
+        refreshWidgetTree(guarded_main_win);
+    });
 
     return dialog_code;
 }
