@@ -4,6 +4,8 @@
 
 #include <QWidget>
 
+class QToolButton;
+
 struct QmRibbonTabBarPrivate;
 class QMRIBBON_API QmRibbonTabBar : public QWidget {
     Q_OBJECT

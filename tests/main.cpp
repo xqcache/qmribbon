@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
     ribbon->setFeatures(QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar);
     ribbon->titleBar()->quickAccessToolBar()->addAction("Test");
     ribbon->tabBar()->applicationButton()->setText("File");
+    
 
     auto* simu_page = ribbon->addPage("Simulate");
     auto* post_proc_page = ribbon->addPage("Post Process");

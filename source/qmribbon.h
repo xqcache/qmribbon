@@ -4,6 +4,7 @@
 
 #include <QWidget>
 
+class QToolButton;
 class QMainWindow;
 class QmRibbonPage;
 class QmRibbonWelcomeDialog;
