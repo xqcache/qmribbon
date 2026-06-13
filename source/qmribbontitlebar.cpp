@@ -4,9 +4,11 @@
 
 #include <QApplication>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QSize>
 #include <QToolBar>
 #include <QToolButton>
 
@@ -76,6 +78,11 @@ bool QmRibbonTitleBar::eventFilter(QObject* watched, QEvent* event)
             setWindowTitle(window->windowTitle());
         }
         break;
+    case QEvent::WindowIconChange:
+        if (auto* window = qobject_cast<QMainWindow*>(watched); window) {
+            setLogoIcon(window->windowIcon());
+        }
+        break;
     default:
         break;
     }
@@ -108,6 +115,9 @@ void QmRibbonTitleBar::initUi()
 
     d_->btn_logo = new QToolButton(this);
     d_->btn_logo->setProperty("Style", "RibbonApplicationLogo");
+    d_->btn_logo->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    d_->btn_logo->setIconSize(QSize(18, 18));
+    d_->btn_logo->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
     d_->btn_user_info = new QToolButton(this);
     d_->btn_user_info->setToolTip(tr("User Information"));

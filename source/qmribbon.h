@@ -8,6 +8,7 @@ class QToolButton;
 class QMainWindow;
 class QmRibbonPage;
 class QmRibbonWelcomeDialog;
+class QmRibbonWelcomePage;
 class QmRibbonTabBar;
 class QmRibbonTitleBar;
 
@@ -39,6 +40,11 @@ public:
     QmRibbonPage* addPage(const QString& title, const QIcon& icon = QIcon());
 
     QmRibbonWelcomeDialog* welcomeDialog() const;
+    void setWelcomePage(QmRibbonWelcomePage* page);
+    QmRibbonWelcomePage* welcomePage() const;
+    void showBackstage(bool first_show = false);
+    void hideBackstage();
+    bool isBackstageVisible() const;
 
     QToolButton* pageButton(QmRibbonPage* page) const;
     QmRibbonPage* findPage(const QString& object_name) const;
@@ -55,6 +61,7 @@ signals:
 
 protected:
     bool event(QEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void changeEvent(QEvent* event) override;
 

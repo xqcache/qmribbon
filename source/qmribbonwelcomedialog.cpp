@@ -4,12 +4,12 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QIcon>
+#include <QLabel>
 #include <QMainWindow>
-#include <QPointer>
 #include <QResizeEvent>
 #include <QScreen>
 #include <QSpacerItem>
-#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -38,35 +38,26 @@ void syncWindowFromMainWindow(QWidget* dialog, QMainWindow* main_win)
     }
 }
 
-void refreshWidgetTree(QWidget* widget)
+void updateMaximizeButtonText(QToolButton* button, const QWidget* window)
 {
-    if (!widget) {
+    if (!button) {
         return;
     }
+    button->setText(window && window->isMaximized() ? "\u2102" : "\u2101");
+}
 
-    if (auto* widget_layout = widget->layout(); widget_layout) {
-        widget_layout->invalidate();
-        widget_layout->activate();
+void updateBrandIcon(QLabel* label, const QIcon& icon)
+{
+    if (!label || icon.isNull()) {
+        return;
     }
-    widget->updateGeometry();
-    widget->update();
-    widget->repaint();
-
-    const auto child_widgets = widget->findChildren<QWidget*>();
-    for (QWidget* child_widget : child_widgets) {
-        if (auto* child_layout = child_widget->layout(); child_layout) {
-            child_layout->invalidate();
-            child_layout->activate();
-        }
-        child_widget->updateGeometry();
-        child_widget->update();
-        child_widget->repaint();
-    }
+    label->setPixmap(icon.pixmap(QSize(18, 18)));
 }
 }
 
 struct QmRibbonWelcomeDialogPrivate {
     QmRibbon* ribbon { nullptr };
+    QLabel* brand_icon { nullptr };
     QToolButton* btn_win_minimized { nullptr };
     QToolButton* btn_win_maximized { nullptr };
     QToolButton* btn_win_close { nullptr };
@@ -89,43 +80,18 @@ QmRibbonWelcomeDialog::~QmRibbonWelcomeDialog() noexcept
 
 int QmRibbonWelcomeDialog::execOverMainWindow(bool first_show)
 {
-    auto* main_win = d_->ribbon->mainWindow();
-    if (!main_win) {
-        return exec();
-    }
-    main_win->setWindowOpacity(0);
-    syncWindowFromMainWindow(this, main_win);
-
-    if (auto* welcome_page = qobject_cast<QmRibbonWelcomePage*>(widget()); welcome_page) {
-        welcome_page->setAsFirstShow(first_show);
-    }
-
-    const int dialog_code = exec();
-
-    raise();
-    activateWindow();
-
-    main_win->setGeometry(geometry());
-    main_win->setWindowOpacity(1.0);
-    main_win->show();
-    main_win->raise();
-    main_win->activateWindow();
-    refreshWidgetTree(main_win);
-
-    QPointer<QMainWindow> guarded_main_win(main_win);
-    QTimer::singleShot(0, main_win, [guarded_main_win] {
-        if (!guarded_main_win || !guarded_main_win->isVisible()) {
-            return;
-        }
-        refreshWidgetTree(guarded_main_win);
-    });
-
-    return dialog_code;
+    d_->ribbon->showBackstage(first_show);
+    return QDialog::Accepted;
 }
 
 void QmRibbonWelcomeDialog::showEvent(QShowEvent* event)
 {
     syncWindowFromMainWindow(this, d_->ribbon->mainWindow());
+    updateMaximizeButtonText(d_->btn_win_maximized, this);
+    if (auto* main_win = d_->ribbon->mainWindow(); main_win) {
+        setWindowIcon(main_win->windowIcon());
+        updateBrandIcon(d_->brand_icon, main_win->windowIcon());
+    }
     QmFramelessDialog::showEvent(event);
 }
 
@@ -134,9 +100,17 @@ bool QmRibbonWelcomeDialog::eventFilter(QObject* watched, QEvent* event)
     if (watched == d_->ribbon->mainWindow()) {
         switch (event->type()) {
         case QEvent::WindowStateChange:
+            updateMaximizeButtonText(d_->btn_win_maximized, d_->ribbon->mainWindow());
+            [[fallthrough]];
         case QEvent::Move:
         case QEvent::Resize:
             syncWindowFromMainWindow(this, d_->ribbon->mainWindow());
+            break;
+        case QEvent::WindowIconChange:
+            if (auto* main_win = d_->ribbon->mainWindow(); main_win) {
+                setWindowIcon(main_win->windowIcon());
+                updateBrandIcon(d_->brand_icon, main_win->windowIcon());
+            }
             break;
         default:
             break;
@@ -152,7 +126,14 @@ void QmRibbonWelcomeDialog::initUi()
     QHBoxLayout* lyt_titlebar = new QHBoxLayout(titlebar);
     lyt_titlebar->setContentsMargins(0, 0, 0, 0);
 
-    lyt_titlebar->addSpacerItem(new QSpacerItem(10, 0));
+    d_->brand_icon = new QLabel(titlebar);
+    d_->brand_icon->setObjectName("brand_icon");
+    d_->brand_icon->setFixedSize(18, 18);
+    d_->brand_icon->setScaledContents(true);
+
+    lyt_titlebar->addSpacing(8);
+    lyt_titlebar->addWidget(d_->brand_icon, 0, Qt::AlignVCenter);
+    lyt_titlebar->addSpacing(8);
     lyt_titlebar->addSpacerItem(new QSpacerItem(10, 0, QSizePolicy::Expanding));
 
     QHBoxLayout* lyt_button_area = new QHBoxLayout;
@@ -166,9 +147,15 @@ void QmRibbonWelcomeDialog::initUi()
     d_->btn_win_maximized->setObjectName("btn_win_maximized");
     d_->btn_win_close->setObjectName("btn_win_close");
 
+    d_->btn_win_minimized->setToolTip(tr("Minimize the window"));
+    d_->btn_win_maximized->setToolTip(tr("Maximize the window"));
+    d_->btn_win_close->setToolTip(tr("Close window"));
+
     d_->btn_win_minimized->setProperty("Style", "WindowButton");
     d_->btn_win_maximized->setProperty("Style", "WindowButton");
     d_->btn_win_close->setProperty("Style", "WindowButton");
+
+    updateMaximizeButtonText(d_->btn_win_maximized, this);
 
     lyt_button_area->addWidget(d_->btn_win_minimized);
     lyt_button_area->addWidget(d_->btn_win_maximized);
@@ -185,6 +172,8 @@ void QmRibbonWelcomeDialog::connectSignals()
             return;
         }
         main_win->installEventFilter(this);
+        setWindowIcon(main_win->windowIcon());
+        updateBrandIcon(d_->brand_icon, main_win->windowIcon());
     });
     connect(d_->btn_win_close, &QToolButton::clicked, this, [this] {
         reject();
@@ -198,6 +187,22 @@ void QmRibbonWelcomeDialog::connectSignals()
             main_win->showMinimized();
         }
         showMinimized();
+    });
+    connect(d_->btn_win_maximized, &QToolButton::clicked, this, [this] {
+        auto* main_win = d_->ribbon->mainWindow();
+        const bool maximized = (main_win && main_win->isMaximized()) || isMaximized();
+        if (maximized) {
+            if (main_win) {
+                main_win->showNormal();
+            }
+            showNormal();
+        } else {
+            if (main_win) {
+                main_win->showMaximized();
+            }
+            showMaximized();
+        }
+        updateMaximizeButtonText(d_->btn_win_maximized, this);
     });
 }
 

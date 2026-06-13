@@ -6,13 +6,19 @@
 #include "qmribbontabbar.h"
 #include "qmribbontitlebar.h"
 #include "qmribbonwelcomedialog.h"
+#include "qmribbonwelcomepage.h"
 
 #include <QApplication>
 #include <QEvent>
 #include <QFile>
 #include <QFontDatabase>
+#include <QLayout>
 #include <QMainWindow>
+#include <QMargins>
+#include <QPoint>
+#include <QRect>
 #include <QStyle>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -35,6 +41,17 @@ void initializeAssets()
 {
     static AssetsInitializer ins;
 }
+
+QRect backstageGeometry(QMainWindow* window, QmRibbonTitleBar* titlebar)
+{
+    if (!window || !titlebar) {
+        return {};
+    }
+
+    const QMargins margins = window->contentsMargins();
+    const int top = titlebar->mapTo(window, QPoint(0, titlebar->height())).y();
+    return QRect(margins.left(), top, window->width() - margins.left() - margins.right(), window->height() - top - margins.bottom());
+}
 }
 
 struct QmRibbonPrivate {
@@ -42,6 +59,8 @@ struct QmRibbonPrivate {
     QmRibbonTitleBar* titlebar { nullptr };
     QmRibbonTabBar* tabbar { nullptr };
     QmRibbonWelcomeDialog* welcome_dlg { nullptr };
+    QWidget* backstage_overlay { nullptr };
+    QmRibbonWelcomePage* welcome_page { nullptr };
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbon::Features features = QmRibbon::Features();
@@ -73,6 +92,7 @@ QmRibbon::~QmRibbon() noexcept
         delete d_->welcome_dlg;
     }
 
+    delete d_->backstage_overlay;
     delete d_->page_container;
     delete d_;
     qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant());
@@ -111,6 +131,28 @@ bool QmRibbon::event(QEvent* event)
     return QWidget::event(event);
 }
 
+bool QmRibbon::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == d_->window && d_->backstage_overlay && d_->backstage_overlay->isVisible()) {
+        switch (event->type()) {
+        case QEvent::Resize:
+        case QEvent::WindowStateChange:
+            d_->backstage_overlay->setGeometry(backstageGeometry(d_->window, d_->titlebar));
+            d_->backstage_overlay->raise();
+            QTimer::singleShot(0, this, [this] {
+                if (d_->window && d_->backstage_overlay && d_->backstage_overlay->isVisible()) {
+                    d_->backstage_overlay->setGeometry(backstageGeometry(d_->window, d_->titlebar));
+                    d_->backstage_overlay->raise();
+                }
+            });
+            break;
+        default:
+            break;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
 void QmRibbon::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
@@ -129,14 +171,15 @@ void QmRibbon::setMainWindow(QMainWindow* window)
     d_->window = window;
     qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant::fromValue(window));
     qApp->setProperty(QmRibbon::kRibbonPropName, QVariant::fromValue(this));
-
     if (window->metaObject()->indexOfSlot("setTitleBar(QWidget*)") >= 0) {
         QMetaObject::invokeMethod(window, "setTitleBar", Q_ARG(QWidget*, this));
     } else {
         window->setMenuWidget(this);
     }
+    window->installEventFilter(this);
     window->installEventFilter(d_->titlebar);
     d_->titlebar->setWindowTitle(window->windowTitle());
+    d_->titlebar->setLogoIcon(window->windowIcon());
     emit mainWindowChanged(d_->window);
 }
 
@@ -148,6 +191,78 @@ QMainWindow* QmRibbon::mainWindow() const
 QmRibbonWelcomeDialog* QmRibbon::welcomeDialog() const
 {
     return d_->welcome_dlg;
+}
+
+void QmRibbon::setWelcomePage(QmRibbonWelcomePage* page)
+{
+    if (!page) {
+        return;
+    }
+
+    if (!d_->backstage_overlay) {
+        d_->backstage_overlay = new QWidget(d_->window);
+        d_->backstage_overlay->setObjectName("QmRibbonBackstageOverlay");
+        d_->backstage_overlay->setAttribute(Qt::WA_StyledBackground, true);
+        d_->backstage_overlay->setStyleSheet("#QmRibbonBackstageOverlay { background: #eef2f4; }");
+        d_->backstage_overlay->setFocusPolicy(Qt::StrongFocus);
+        d_->backstage_overlay->hide();
+
+        auto* layout = new QVBoxLayout(d_->backstage_overlay);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+    } else if (auto* layout = d_->backstage_overlay->layout(); layout && d_->welcome_page) {
+        layout->removeWidget(d_->welcome_page);
+        d_->welcome_page->setParent(nullptr);
+    }
+
+    d_->welcome_page = page;
+    d_->welcome_page->setParent(d_->backstage_overlay);
+    d_->backstage_overlay->layout()->addWidget(d_->welcome_page);
+}
+
+QmRibbonWelcomePage* QmRibbon::welcomePage() const
+{
+    return d_->welcome_page;
+}
+
+void QmRibbon::showBackstage(bool first_show)
+{
+    if (!d_->window || !d_->backstage_overlay || !d_->welcome_page) {
+        return;
+    }
+
+    d_->welcome_page->setAsFirstShow(first_show);
+    d_->backstage_overlay->setGeometry(backstageGeometry(d_->window, d_->titlebar));
+    d_->backstage_overlay->show();
+    d_->backstage_overlay->raise();
+    d_->backstage_overlay->setFocus(Qt::OtherFocusReason);
+    if (auto* overlay_layout = d_->backstage_overlay->layout(); overlay_layout) {
+        overlay_layout->invalidate();
+        overlay_layout->activate();
+    }
+    d_->backstage_overlay->updateGeometry();
+    d_->backstage_overlay->repaint();
+    QTimer::singleShot(0, this, [this] {
+        if (d_->window && d_->backstage_overlay && d_->backstage_overlay->isVisible()) {
+            d_->backstage_overlay->setGeometry(backstageGeometry(d_->window, d_->titlebar));
+            d_->backstage_overlay->raise();
+            d_->backstage_overlay->repaint();
+        }
+    });
+}
+
+void QmRibbon::hideBackstage()
+{
+    if (!d_->backstage_overlay || !d_->backstage_overlay->isVisible()) {
+        return;
+    }
+
+    d_->backstage_overlay->hide();
+}
+
+bool QmRibbon::isBackstageVisible() const
+{
+    return d_->backstage_overlay && d_->backstage_overlay->isVisible();
 }
 
 QmRibbon* QmRibbon::install(QMainWindow* window, Features features)
@@ -228,7 +343,7 @@ void QmRibbon::connectSignals()
     connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
 
     connect(d_->tabbar->applicationButton(), &QToolButton::clicked, this, [this] {
-        d_->welcome_dlg->execOverMainWindow();
+        showBackstage();
     });
 }
 
