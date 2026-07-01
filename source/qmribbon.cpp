@@ -88,14 +88,26 @@ QmRibbon::QmRibbon(QWidget* parent, Features features)
 
 QmRibbon::~QmRibbon() noexcept
 {
-    if (!d_->welcome_dlg->parent()) {
+    if (d_->window) {
+        d_->window->removeEventFilter(this);
+        if (d_->titlebar) {
+            d_->window->removeEventFilter(d_->titlebar);
+        }
+    }
+    qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant());
+    qApp->setProperty(QmRibbon::kRibbonPropName, QVariant());
+
+    if (d_->welcome_dlg && !d_->welcome_dlg->parent()) {
         delete d_->welcome_dlg;
     }
 
-    delete d_->backstage_overlay;
-    delete d_->page_container;
+    if (d_->backstage_overlay && !d_->backstage_overlay->parent()) {
+        delete d_->backstage_overlay;
+    }
+    if (d_->page_container && !d_->page_container->parent()) {
+        delete d_->page_container;
+    }
     delete d_;
-    qApp->setProperty(QmRibbon::kRibbonWindowPropName, QVariant());
 }
 
 QmRibbonTitleBar* QmRibbon::titleBar() const
