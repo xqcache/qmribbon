@@ -1,5 +1,6 @@
-#include "qmframelesswindow.h"
 #include "qmribbon.h"
+#include "qmribbonbackstageview.h"
+#include "qmribbonmainwindow.h"
 #include "qmribbonpage.h"
 #include "qmribbonsection.h"
 #include "qmribbontabbar.h"
@@ -9,26 +10,62 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
+#include <QPushButton>
 #include <QToolBar>
 #include <QToolButton>
+
+class BackstageView : public QmRibbonBackstageView {
+public:
+    explicit BackstageView(QWidget* parent = nullptr)
+        : QmRibbonBackstageView(parent)
+    {
+        auto* lyt_main = new QVBoxLayout(this);
+        lyt_main->setContentsMargins(0, 0, 0, 0);
+        lyt_main->setSpacing(0);
+
+        auto* label = new QLabel("Backstage View", this);
+        label->setAlignment(Qt::AlignCenter);
+
+        QPushButton* btn_leave = new QPushButton("Leave Backstage View", this);
+        connect(btn_leave, &QPushButton::clicked, this, [this] {
+            emit leaveBackstageView();
+        });
+        lyt_main->addWidget(btn_leave);
+        lyt_main->addWidget(label);
+    }
+};
+
+class MainView : public QWidget {
+public:
+    explicit MainView(QWidget* parent = nullptr)
+        : QWidget(parent)
+    {
+        auto* lyt_main = new QVBoxLayout(this);
+        lyt_main->setContentsMargins(0, 0, 0, 0);
+        lyt_main->setSpacing(0);
+
+        auto* label = new QLabel("Main View", this);
+        label->setAlignment(Qt::AlignCenter);
+        lyt_main->addWidget(label);
+    }
+};
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    QmFramelessWindow win;
+    QmRibbonMainWindow win;
     win.setWindowTitle("Hello ");
     win.resize(1366, 768);
 
-    auto* centeral_widget = new QWidget(&win);
-    centeral_widget->setAttribute(Qt::WA_StyledBackground);
-    win.setCentralWidget(centeral_widget);
+    win.setBackstageView(new BackstageView());
+    win.setMainView(new MainView());
+    win.showMainView();
 
-    auto* ribbon = QmRibbon::install(&win);
-    ribbon->setFeatures(QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar);
+    auto* ribbon = win.ribbon();
+    ribbon->setFeatures(QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar | QmRibbon::NoDefaultTitleBar);
     ribbon->titleBar()->quickAccessToolBar()->addAction("Test");
     ribbon->tabBar()->applicationButton()->setText("File");
-    
 
     auto* simu_page = ribbon->addPage("Simulate");
     auto* post_proc_page = ribbon->addPage("Post Process");

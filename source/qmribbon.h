@@ -25,7 +25,8 @@ public:
         NoQuickAccessToolBar = 0x04,
         NoApplicationButton = 0x08,
         NoApplicationLogo = 0x10,
-        NoDefaultStyle = 0x20,
+        NoDefaultTitleBar = 0x20,
+        NoDefaultStyle = 0x40,
     };
     Q_ENUM(Feature)
     Q_DECLARE_FLAGS(Features, Feature)
@@ -39,13 +40,6 @@ public:
     QmRibbonTabBar* tabBar() const;
     QmRibbonPage* addPage(const QString& title, const QIcon& icon = QIcon());
 
-    QmRibbonWelcomeDialog* welcomeDialog() const;
-    void setWelcomePage(QmRibbonWelcomePage* page);
-    QmRibbonWelcomePage* welcomePage() const;
-    void showBackstage(bool first_show = false);
-    void hideBackstage();
-    bool isBackstageVisible() const;
-
     QToolButton* pageButton(QmRibbonPage* page) const;
     QmRibbonPage* findPage(const QString& object_name) const;
     QToolButton* findPageButton(const QString& object_name) const;
@@ -58,10 +52,10 @@ public:
 
 signals:
     void mainWindowChanged(QMainWindow* win);
+    void enterBackstageView();
 
 protected:
     bool event(QEvent* event) override;
-    bool eventFilter(QObject* watched, QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void changeEvent(QEvent* event) override;
 
