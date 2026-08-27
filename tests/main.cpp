@@ -54,16 +54,17 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    QmRibbonMainWindow win;
+    QmRibbonMainWindow win(nullptr,
+        QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar | QmRibbon::NoDefaultTitleBar);
     win.setWindowTitle("Hello ");
     win.resize(1366, 768);
+    win.setViewAnimationEnabled(true);
 
     win.setBackstageView(new BackstageView());
     win.setMainView(new MainView());
     win.showMainView();
 
     auto* ribbon = win.ribbon();
-    ribbon->setFeatures(QmRibbon::NoRibbonButton | QmRibbon::NoUserInfoButton | QmRibbon::NoQuickAccessToolBar | QmRibbon::NoDefaultTitleBar);
     ribbon->titleBar()->quickAccessToolBar()->addAction("Test");
     ribbon->tabBar()->applicationButton()->setText("File");
 
