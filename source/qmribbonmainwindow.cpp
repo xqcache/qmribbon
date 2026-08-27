@@ -9,7 +9,6 @@
 #include <QPropertyAnimation>
 #include <QStackedLayout>
 #include <QStackedWidget>
-#include <QVBoxLayout>
 
 struct QmRibbonMainWindowPrivate {
     QmRibbon* ribbon { nullptr };
@@ -21,6 +20,9 @@ struct QmRibbonMainWindowPrivate {
     QPointer<QWidget> transition_source;
     QPointer<QWidget> transition_target;
     QmRibbonMainWindow::ViewMode transition_mode { QmRibbonMainWindow::ViewMode::MainView };
+    QPropertyAnimation* ribbon_animation { nullptr };
+    bool ribbon_target_visible { true };
+    int ribbon_expanded_height { 0 };
 };
 
 QmRibbonMainWindow::QmRibbonMainWindow(QWidget* parent, Qt::WindowFlags flags)
@@ -34,6 +36,7 @@ QmRibbonMainWindow::QmRibbonMainWindow(QWidget* parent, Qt::WindowFlags flags)
 QmRibbonMainWindow::~QmRibbonMainWindow() noexcept
 {
     cancelViewTransition();
+    finishRibbonAnimation();
     delete d_;
 }
 
@@ -42,9 +45,6 @@ void QmRibbonMainWindow::initUi()
     d_->ribbon = QmRibbon::install(this);
     d_->central_widget = new QStackedWidget(this);
     setCentralWidget(d_->central_widget);
-
-    auto* lyt_main = new QVBoxLayout(d_->central_widget);
-    lyt_main->setContentsMargins(0, 0, 0, 0);
 }
 
 void QmRibbonMainWindow::connectSignals()
@@ -142,7 +142,7 @@ void QmRibbonMainWindow::transitionToView(QWidget* target, ViewMode mode, int di
     }
 
     d_->view_mode = mode;
-    d_->ribbon->setVisible(mode == ViewMode::MainView);
+    animateRibbonVisibility(mode == ViewMode::MainView);
     if (layout()) {
         layout()->activate();
     }
@@ -203,8 +203,90 @@ void QmRibbonMainWindow::setCurrentView(QWidget* target, ViewMode mode)
         auto* widget = d_->central_widget->widget(index);
         widget->setVisible(widget == target);
     }
-    d_->ribbon->setVisible(mode == ViewMode::MainView);
+    animateRibbonVisibility(mode == ViewMode::MainView);
     d_->view_mode = mode;
+}
+
+void QmRibbonMainWindow::animateRibbonVisibility(bool visible)
+{
+    if (d_->ribbon_animation && d_->ribbon_target_visible == visible) {
+        return;
+    }
+
+    const bool was_animating = d_->ribbon_animation != nullptr;
+    int current_height = d_->ribbon->height();
+    if (d_->ribbon_animation) {
+        current_height = d_->ribbon->maximumHeight();
+        d_->ribbon_animation->stop();
+        d_->ribbon_animation->deleteLater();
+        d_->ribbon_animation = nullptr;
+    }
+
+    if (!isVisible()) {
+        d_->ribbon->setMaximumHeight(QWIDGETSIZE_MAX);
+        d_->ribbon->setVisible(visible);
+        return;
+    }
+
+    if (visible) {
+        if (d_->ribbon->isVisible() && current_height > 0 && !was_animating) {
+            d_->ribbon->setMaximumHeight(QWIDGETSIZE_MAX);
+            return;
+        }
+        if (!d_->ribbon->isVisible()) {
+            current_height = 0;
+        }
+        d_->ribbon_expanded_height = qMax(d_->ribbon_expanded_height, d_->ribbon->sizeHint().height());
+        current_height = qMax(0, current_height);
+        d_->ribbon->setMaximumHeight(current_height);
+        d_->ribbon->show();
+    } else {
+        if (!d_->ribbon->isVisible()) {
+            return;
+        }
+        current_height = qMax(0, current_height);
+        d_->ribbon_expanded_height = qMax(d_->ribbon_expanded_height, current_height);
+    }
+
+    const int target_height = visible ? qMax(1, d_->ribbon_expanded_height) : 0;
+    if (current_height == target_height) {
+        d_->ribbon->setMaximumHeight(QWIDGETSIZE_MAX);
+        d_->ribbon->setVisible(visible);
+        return;
+    }
+
+    d_->ribbon_target_visible = visible;
+    auto* animation = new QPropertyAnimation(d_->ribbon, "maximumHeight", this);
+    animation->setStartValue(current_height);
+    animation->setEndValue(target_height);
+    animation->setDuration(200);
+    animation->setEasingCurve(QEasingCurve::InOutCubic);
+    d_->ribbon_animation = animation;
+
+    connect(animation, &QPropertyAnimation::finished, this, [this, animation] {
+        if (d_->ribbon_animation != animation) {
+            return;
+        }
+        d_->ribbon_animation = nullptr;
+        d_->ribbon->setVisible(d_->ribbon_target_visible);
+        d_->ribbon->setMaximumHeight(QWIDGETSIZE_MAX);
+        animation->deleteLater();
+    });
+    animation->start();
+}
+
+void QmRibbonMainWindow::finishRibbonAnimation()
+{
+    if (!d_->ribbon_animation) {
+        return;
+    }
+
+    auto* animation = d_->ribbon_animation;
+    d_->ribbon_animation = nullptr;
+    animation->stop();
+    animation->deleteLater();
+    d_->ribbon->setVisible(d_->ribbon_target_visible);
+    d_->ribbon->setMaximumHeight(QWIDGETSIZE_MAX);
 }
 
 void QmRibbonMainWindow::finishViewTransition()

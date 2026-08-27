@@ -1,0 +1,37 @@
+QmRibbon,
+QmRibbonTitleBar,
+QmRibbonTabBar,
+QmRibbonPageContainer {
+    background-color: #202020;
+    color: #f5f5f5;
+}
+
+QmRibbonTitleBar QToolButton[Style="WindowButton"],
+QmRibbonTabBar QToolButton {
+    color: #f5f5f5;
+}
+
+QmRibbonTitleBar #btn_win_minimized:hover,
+QmRibbonTitleBar #btn_win_maximized:hover,
+QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:hover {
+    background-color: #383838;
+}
+
+QmRibbonTabBar {
+    border-top: 1px solid #3d3d3d;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:checked,
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover:checked {
+    border-bottom: 3px solid #60cdff;
+}
+
+QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover {
+    background-color: #383838;
+    border-bottom: 3px solid #707070;
+}
+
+QmRibbonPage QFrame[Style="RibbonSectionSeparator"] {
+    color: #60cdff;
+}

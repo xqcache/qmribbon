@@ -56,12 +56,14 @@ signals:
 
 protected:
     bool event(QEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void changeEvent(QEvent* event) override;
 
 private:
     void initUi();
     void connectSignals();
+    void applySystemTheme();
 
 private slots:
     void onContainerFloatingRequested();

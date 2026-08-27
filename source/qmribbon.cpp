@@ -13,9 +13,11 @@
 #include <QLayout>
 #include <QMainWindow>
 #include <QMargins>
+#include <QPalette>
 #include <QPoint>
 #include <QRect>
 #include <QStyle>
+#include <QStyleHints>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -60,6 +62,7 @@ struct QmRibbonPrivate {
     QmRibbonPageContainer* page_container { nullptr };
 
     QmRibbon::Features features = QmRibbon::Features();
+    int applied_theme { -1 };
 
     std::map<QmRibbonPage*, QToolButton*> page_buttons;
 };
@@ -71,19 +74,16 @@ QmRibbon::QmRibbon(QWidget* parent, Features features)
     d_->features = features;
     if (!d_->features.testAnyFlag(NoDefaultStyle)) {
         initializeAssets();
-        QFile style(":/qmribbon/styles/default");
-        if (style.open(QFile::ReadOnly)) {
-            qApp->setStyleSheet(style.readAll());
-            style.close();
-        }
     }
     setAttribute(Qt::WA_StyledBackground, true);
     initUi();
+    applySystemTheme();
     connectSignals();
 }
 
 QmRibbon::~QmRibbon() noexcept
 {
+    qApp->removeEventFilter(this);
     if (d_->window) {
         d_->window->removeEventFilter(this);
         if (d_->titlebar) {
@@ -129,6 +129,14 @@ void QmRibbon::initUi()
 bool QmRibbon::event(QEvent* event)
 {
     return QWidget::event(event);
+}
+
+bool QmRibbon::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == qApp && event->type() == QEvent::ApplicationPaletteChange) {
+        applySystemTheme();
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void QmRibbon::resizeEvent(QResizeEvent* event)
@@ -232,6 +240,13 @@ void QmRibbon::setFeatures(Features features, bool on)
 
 void QmRibbon::connectSignals()
 {
+    qApp->installEventFilter(this);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this] {
+        applySystemTheme();
+    });
+#endif
+
     connect(d_->tabbar, &QmRibbonTabBar::tabActivated, this, [this](int index) {
         if (index == d_->page_container->currentIndex()) {
             return;
@@ -244,6 +259,39 @@ void QmRibbon::connectSignals()
     connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
 
     connect(d_->tabbar->applicationButton(), &QToolButton::clicked, this, &QmRibbon::enterBackstageView);
+}
+
+void QmRibbon::applySystemTheme()
+{
+    if (d_->features.testAnyFlag(NoDefaultStyle)) {
+        return;
+    }
+
+    const QPalette system_palette = qApp->palette();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    const auto color_scheme = qApp->styleHints()->colorScheme();
+    const bool dark_mode = color_scheme == Qt::ColorScheme::Dark
+        || (color_scheme == Qt::ColorScheme::Unknown && system_palette.window().color().lightness() < 128);
+#else
+    const bool dark_mode = system_palette.window().color().lightness() < 128;
+#endif
+
+    const int theme = dark_mode ? 1 : 0;
+    if (d_->applied_theme == theme) {
+        return;
+    }
+    d_->applied_theme = theme;
+
+    const auto read_style = [](const QString& path) {
+        QFile file(path);
+        return file.open(QFile::ReadOnly) ? QString::fromUtf8(file.readAll()) : QString();
+    };
+
+    QString style_sheet = read_style(":/qmribbon/styles/default");
+    style_sheet += QLatin1Char('\n');
+    style_sheet += read_style(dark_mode ? ":/qmribbon/styles/dark" : ":/qmribbon/styles/light");
+    qApp->setStyleSheet(style_sheet);
 }
 
 void QmRibbon::onContainerFloatingRequested()

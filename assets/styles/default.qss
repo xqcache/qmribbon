@@ -1,14 +1,7 @@
-QmRibbon {
-    background: black;
-}
-
 QmRibbonTitleBar {
-    background-color: #eeeff1;
-
     font-family: "Source Han Sans CN";
     font-weight: 500;
-    font-size: 20px;
-    color: #333333;
+    font-size: 15pt;
 
     min-height: 40px;
     max-height: 40px;
@@ -20,7 +13,6 @@ QmRibbonTitleBar QToolButton[Style="WindowButton"] {
     padding-right: 15px;
     font-family: "uifont";
     border: none;
-    color: black;
     font-size: 13pt;
     background: transparent;
 }
@@ -40,19 +32,11 @@ QmRibbonTitleBar #btn_win_close {
 
 QmRibbonTitleBar #btn_win_close:hover {
     background-color: rgba(212, 64, 39, 255);
-    color: #d9d6d6;
-}
-
-QmRibbonTitleBar #btn_win_minimized:hover,
-QmRibbonTitleBar #btn_win_maximized:hover {
-    background-color: lightgray;
+    color: white;
 }
 
 QmRibbonTabBar {
-    background: #efefef;
     border: none;
-    border-top: 1px solid #cbcbcb;
-    border-bottom: 1px solid #cbcbcb;
     min-height: 40px;
     max-height: 40px;
 }
@@ -62,10 +46,10 @@ QmRibbonTabBar QToolButton {
     height: 14px;
     font-family: "Source Han Sans CN";
     font-weight: 500;
-    font-size: 16px;
-    color: #333333;
+    font-size: 12pt;
 
     border: none;
+    background: transparent;
     padding: 3px;
     margin: 2px;
     margin-bottom: 5px;
@@ -73,21 +57,14 @@ QmRibbonTabBar QToolButton {
 
 QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:checked {
     padding-bottom: 0px;
-    border-bottom: 3px solid #017AC8;
 }
 
 QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover {
     padding-bottom: 0px;
-    border-bottom: 3px solid rgb(180, 180, 180);
 }
 
 QmRibbonTabBar QToolButton[Style="RibbonTabButton"]:hover:checked {
     padding-bottom: 0px;
-    border-bottom: 3px solid #005186;
-}
-
-QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:hover {
-    background: lightblue;
 }
 
 QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:pressed {
@@ -95,12 +72,7 @@ QmRibbonTabBar QToolButton[Style="RibbonApplicationButton"]:pressed {
     padding-left: 6px;
 }
 
-QmRibbonPageContainer {
-    background-color: #f7f7f7;
-}
-
 QmRibbonPage QFrame[Style="RibbonSectionSeparator"] {
-    color: #3A97D3;
     margin-top: 5px;
     margin-bottom: 5px;
 }

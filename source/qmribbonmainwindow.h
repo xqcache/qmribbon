@@ -39,6 +39,8 @@ private:
     void connectSignals();
     void transitionToView(QWidget* target, ViewMode mode, int direction);
     void setCurrentView(QWidget* target, ViewMode mode);
+    void animateRibbonVisibility(bool visible);
+    void finishRibbonAnimation();
     void cancelViewTransition();
     void finishViewTransition();
 

@@ -5,6 +5,8 @@
 
     <qresource prefix="/qmribbon/styles">
         <file alias="default">styles/default.qss</file>
+        <file alias="dark">styles/dark.qss</file>
+        <file alias="light">styles/light.qss</file>
     </qresource>
     
     <qresource prefix="/qmribbon/icons">

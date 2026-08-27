@@ -85,7 +85,6 @@ int main(int argc, char* argv[])
     btn1->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     QIcon icon(CURRENT_PATH "/config.svg");
-    qDebug() << icon.isNull();
     btn1->setIcon(icon);
     btn1->setIconSize(QSize(50, 50));
 
