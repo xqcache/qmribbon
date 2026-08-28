@@ -19,6 +19,7 @@ public:
     explicit BackstageView(QWidget* parent = nullptr)
         : QmRibbonBackstageView(parent)
     {
+
         auto* lyt_main = new QVBoxLayout(this);
         lyt_main->setContentsMargins(0, 0, 0, 0);
         lyt_main->setSpacing(0);
@@ -40,6 +41,7 @@ public:
     explicit MainView(QWidget* parent = nullptr)
         : QWidget(parent)
     {
+
         auto* lyt_main = new QVBoxLayout(this);
         lyt_main->setContentsMargins(0, 0, 0, 0);
         lyt_main->setSpacing(0);

@@ -20,8 +20,8 @@ set(PRIVATE_SOURCES
     qmribbonbackstageview.cpp
 )
 
-find_package(QT NAMES Qt6 CONFIG REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} CONFIG REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 CONFIG REQUIRED COMPONENTS Widgets Svg)
+find_package(Qt${QT_VERSION_MAJOR} CONFIG REQUIRED COMPONENTS Widgets Svg)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -43,7 +43,7 @@ else()
 endif()
 
 target_sources(${TARGET_NAME} PRIVATE ${PRIVATE_SOURCES})
-target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Widgets qmwidgets PRIVATE qmribbon_assets)
+target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Widgets qmwidgets PRIVATE Qt${QT_VERSION_MAJOR}::Svg qmribbon_assets)
 target_include_directories(${TARGET_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>" "$<INSTALL_INTERFACE:include>")
 
 include(GNUInstallDirs)

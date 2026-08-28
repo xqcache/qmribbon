@@ -7,7 +7,7 @@ QmRibbonPageContainer {
 }
 
 QmRibbonPageContainer QmImageShadowWidget {
-    qproperty-shadowPixmap: url(:/qmribbon/images/word_ribbon_shadow_dark);
+    qproperty-shadowPixmap: url(:/qmribbon/images/shadow_dark);
 }
 
 QmRibbonTitleBar QToolButton[Style="WindowButton"],
