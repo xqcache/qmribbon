@@ -11,6 +11,7 @@ public:
 
     void setFloating(bool floating);
     bool isFloating() const;
+    void setFoldButtonVisible(bool visible);
 
     int addWidget(QWidget* widget);
 
@@ -18,12 +19,17 @@ public:
     int currentIndex() const;
     void setCurrentIndex(int index);
 
+signals:
+    void floatingRequested(bool floating);
+
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
 private:
     void initUi();
+    void updateFoldButtonGeometry();
+    void stopAnimation();
     void showWithAnimation();
     void hideWithAnimation();
 

@@ -27,6 +27,7 @@ public:
         NoApplicationLogo = 0x10,
         NoDefaultTitleBar = 0x20,
         NoDefaultStyle = 0x40,
+        NoRibbonFoldButton = 0x80
     };
     Q_ENUM(Feature)
     Q_DECLARE_FLAGS(Features, Feature)
@@ -64,6 +65,7 @@ private:
     void initUi();
     void connectSignals();
     void applySystemTheme();
+    void setContainerFloating(bool floating);
 
 private slots:
     void onContainerFloatingRequested();

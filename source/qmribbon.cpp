@@ -236,6 +236,7 @@ void QmRibbon::setFeatures(Features features, bool on)
     d_->titlebar->setRibbonButtonVisible(!d_->features.testAnyFlag(NoRibbonButton));
     d_->titlebar->setLogoVisible(!d_->features.testAnyFlag(NoApplicationLogo));
     d_->tabbar->setApplicationButtonVisible(!d_->features.testAnyFlag(NoApplicationButton));
+    d_->page_container->setFoldButtonVisible(!d_->features.testAnyFlag(NoRibbonFoldButton));
 }
 
 void QmRibbon::connectSignals()
@@ -257,6 +258,7 @@ void QmRibbon::connectSignals()
         }
     });
     connect(d_->tabbar, &QmRibbonTabBar::requestToggleFloating, this, &QmRibbon::onContainerFloatingRequested);
+    connect(d_->page_container, &QmRibbonPageContainer::floatingRequested, this, &QmRibbon::setContainerFloating);
 
     connect(d_->tabbar->applicationButton(), &QToolButton::clicked, this, &QmRibbon::enterBackstageView);
 }
@@ -296,7 +298,16 @@ void QmRibbon::applySystemTheme()
 
 void QmRibbon::onContainerFloatingRequested()
 {
-    if (d_->page_container->parentWidget() == this) {
+    setContainerFloating(!d_->page_container->isFloating());
+}
+
+void QmRibbon::setContainerFloating(bool floating)
+{
+    if (floating == d_->page_container->isFloating()) {
+        return;
+    }
+
+    if (floating) {
         QPoint top_left(0, 0);
         auto page_geo = d_->page_container->geometry();
         if (auto* window = qApp->property(QmRibbon::kRibbonWindowPropName).value<QMainWindow*>()) {

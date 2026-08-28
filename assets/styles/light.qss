@@ -4,6 +4,11 @@ QmRibbonTabBar,
 QmRibbonPageContainer {
     background-color: #f3f3f3;
     color: #202020;
+    border-bottom: 1px solid lightgray;
+}
+
+QmRibbonPageContainer QmImageShadowWidget {
+    qproperty-shadowPixmap: url(:/qmribbon/images/word_ribbon_shadow_light);
 }
 
 QmRibbonTitleBar QToolButton[Style="WindowButton"],

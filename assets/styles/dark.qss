@@ -6,6 +6,10 @@ QmRibbonPageContainer {
     color: #f5f5f5;
 }
 
+QmRibbonPageContainer QmImageShadowWidget {
+    qproperty-shadowPixmap: url(:/qmribbon/images/word_ribbon_shadow_dark);
+}
+
 QmRibbonTitleBar QToolButton[Style="WindowButton"],
 QmRibbonTabBar QToolButton {
     color: #f5f5f5;

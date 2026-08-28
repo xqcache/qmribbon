@@ -83,7 +83,22 @@ QmRibbonSection QToolButton[Style="RibbonSectionExpandButton"] {
 }
 
 QmRibbonPageContainer QmImageShadowWidget {
-    qproperty-shadowPixmap: url(:/qmribbon/images/white_shadow_background);
-    qproperty-contentGeometry: rect(10 10 580 580);
-    qproperty-blurRadius: 5;
+    qproperty-contentGeometry: rect(80 32 224 160);
+}
+
+QmRibbonPageContainer QToolButton#btn_ribbon_fold {
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    padding: 0px;
+}
+
+QmRibbonPageContainer QToolButton#btn_ribbon_fold:hover,
+QmRibbonPageContainer QToolButton#btn_ribbon_fold:pressed {
+    background: rgba(128, 128, 128, 40);
+}
+
+QmRibbonPageContainer QToolButton#btn_ribbon_fold::menu-indicator {
+    image: none;
+    width: 0px;
 }

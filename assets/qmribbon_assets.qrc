@@ -14,6 +14,7 @@
     </qresource>
 
     <qresource prefix="/qmribbon/images">
-        <file alias="white_shadow_background">images/white_shadow_background.png</file>
+        <file alias="word_ribbon_shadow_light">images/word_ribbon_shadow_light.png</file>
+        <file alias="word_ribbon_shadow_dark">images/word_ribbon_shadow_dark.png</file>
     </qresource>
 </RCC>
