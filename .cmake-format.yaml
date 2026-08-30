@@ -1,0 +1,50 @@
+format:
+  # 最大行宽
+  line_width: 100
+
+  # 4 空格缩进
+  tab_size: 4
+  use_tabchars: false
+  fractional_tab_policy: use-space
+
+  # 少量位置参数允许保持横向
+  max_pargs_hwrap: 3
+
+  # 少量参数分组允许保持横向
+  max_subgroups_hwrap: 2
+
+  # 横向布局允许占用的最大行数
+  max_rows_cmdline: 2
+  max_lines_hwrap: 2
+
+  # 函数名与括号之间不加空格
+  separate_ctrl_name_with_space: false
+  separate_fn_name_with_space: false
+
+  # 多行命令时右括号单独一行
+  dangle_parens: true
+  dangle_align: prefix
+
+  # 控制嵌套布局选择
+  min_prefix_chars: 4
+  max_prefix_chars: 20
+
+  # 使用 LF 换行
+  line_ending: unix
+
+  # 命令保持 CMake 标准大小写
+  command_case: canonical
+
+  # PUBLIC / PRIVATE / REQUIRED 等统一大写
+  keyword_case: upper
+
+  # 不自动排序参数
+  enable_sort: false
+  autosort: false
+
+  # 无法得到理想布局时仍然输出结果
+  require_valid_layout: false
+
+  # 这些复杂命令始终换行
+  always_wrap:
+    - target_sources
