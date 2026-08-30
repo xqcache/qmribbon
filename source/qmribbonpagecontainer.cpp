@@ -19,6 +19,7 @@ struct QmRibbonPageContainerPrivate {
 
     QPropertyAnimation* animation { nullptr };
     QmImageShadowWidget* shadow_widget { nullptr };
+    QHBoxLayout* lyt_shadow { nullptr };
     QStackedWidget* container_widget { nullptr };
     QToolButton* btn_ribbon_fold { nullptr };
     QMenu* fold_menu { nullptr };
@@ -68,10 +69,10 @@ void QmRibbonPageContainer::initUi()
     d_->btn_ribbon_fold->setPopupMode(QToolButton::InstantPopup);
     d_->shadow_widget->installEventFilter(this);
 
-    auto* lyt_shadow = new QHBoxLayout(d_->shadow_widget);
-    lyt_shadow->setContentsMargins(0, 0, 30, 0);
-    lyt_shadow->setSpacing(0);
-    lyt_shadow->addWidget(d_->container_widget);
+    d_->lyt_shadow = new QHBoxLayout(d_->shadow_widget);
+    d_->lyt_shadow->setContentsMargins(0, 0, 30, 0);
+    d_->lyt_shadow->setSpacing(0);
+    d_->lyt_shadow->addWidget(d_->container_widget);
 
     auto* lyt_main = new QVBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
@@ -105,12 +106,14 @@ void QmRibbonPageContainer::setFloating(bool floating)
 
         auto geo = geometry();
         const QMargins shadow_margins = d_->shadow_widget->shadowMargins();
+        d_->lyt_shadow->setContentsMargins(shadow_margins.left(), 0, 30, shadow_margins.bottom());
         geo.setHeight(geo.height() + shadow_margins.top() + shadow_margins.bottom());
         setGeometry(geo);
     } else {
         qApp->removeEventFilter(this);
         setAttribute(Qt::WA_StyledBackground, true);
         d_->shadow_widget->setShadowEnabled(false);
+        d_->lyt_shadow->setContentsMargins(0, 0, 30, 0);
         setGeometry(property("geo").toRect());
         show();
     }
