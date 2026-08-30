@@ -140,6 +140,17 @@ bool QmRibbonPageContainer::eventFilter(QObject* watched, QEvent* event)
     case QEvent::Resize: {
         if (watched == d_->shadow_widget) {
             updateFoldButtonGeometry();
+        } else if (isFloating() && watched == parentWidget()) {
+            const QMargins parent_margins = parentWidget()->contentsMargins();
+            const int available_width = qMax(0, parentWidget()->width() - parent_margins.left() - parent_margins.right());
+
+            auto geo = geometry();
+            geo.setWidth(available_width);
+            setGeometry(geo);
+
+            auto expanded_size = property("Size").toSize();
+            expanded_size.setWidth(available_width);
+            setProperty("Size", expanded_size);
         }
     } break;
     case QEvent::MouseButtonPress: {
