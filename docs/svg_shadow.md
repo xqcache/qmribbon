@@ -1,0 +1,179 @@
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="288" viewBox="0 0 96 72">
+  <defs>
+    <filter id="soft" x="-40%" y="-30%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5"/>
+    </filter>
+  </defs>
+  <path d="M12 8 V48 Q12 56 20 56 H76 Q84 56 84 48 V8"
+        fill="none" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+        stroke-opacity=".22" transform="translate(0 1.5)" filter="url(#soft)"/>
+  <rect x="12" y="0" width="72" height="56" rx="8" fill="#f3f3f3"/>
+</svg>
+
+```
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="384"
+     height="288"
+     viewBox="0 0 384 288">
+
+  <defs>
+    <filter id="soft"
+            x="-40%"
+            y="-30%"
+            width="180%"
+            height="180%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <path d="M48 32
+           V192
+           Q48 224 80 224
+           H304
+           Q336 224 336 192
+           V32"
+        fill="none"
+        stroke="#000000"
+        stroke-width="16"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-opacity=".22"
+        transform="translate(0 6)"
+        filter="url(#soft)"/>
+
+  <rect x="48"
+        y="0"
+        width="288"
+        height="224"
+        rx="32"
+        fill="#f3f3f3"/>
+</svg>
+
+```
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    默认输出尺寸：384 × 288 px
+
+    viewBox：
+        x      = 0
+        y      = 0
+        width  = 96
+        height = 72
+
+    输出尺寸 / viewBox = 4，
+    因此内部坐标最终整体放大 4 倍。
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="384"
+     height="288"
+     viewBox="0 0 96 72">
+
+  <defs>
+    <!--
+        定义阴影模糊滤镜 soft。
+
+        filter 区域主动扩大，避免 Gaussian Blur
+        向外扩散后被裁剪。
+    -->
+    <filter id="soft"
+            x="-40%"
+            y="-30%"
+            width="180%"
+            height="180%">
+
+      <!-- 高斯模糊强度 -->
+      <feGaussianBlur stdDeviation="2.5"/>
+    </filter>
+  </defs>
+
+  <!--
+      绘制阴影。
+
+      路径：
+
+          M12 8
+              移动到 (12, 8)
+
+          V48
+              画左侧边到 (12, 48)
+
+          Q12 56 20 56
+              左下圆角到 (20, 56)
+
+          H76
+              底边到 (76, 56)
+
+          Q84 56 84 48
+              右下圆角到 (84, 48)
+
+          V8
+              右边向上到 (84, 8)
+
+      顶边没有连接，因此没有顶部阴影。
+
+      stroke-width=4
+          阴影原始轮廓厚度。
+
+      stroke-opacity=.22
+          22% 黑色。
+
+      translate(0,1.5)
+          整体向下偏移，使下方阴影更明显。
+
+      filter=url(#soft)
+          使用 Gaussian Blur。
+  -->
+  <path d="M12 8 V48 Q12 56 20 56 H76 Q84 56 84 48 V8"
+        fill="none"
+        stroke="#000000"
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-opacity=".22"
+        transform="translate(0 1.5)"
+        filter="url(#soft)"/>
+
+  <!--
+      绘制实际面板。
+
+      左上角：
+          (12, 0)
+
+      尺寸：
+          72 × 56
+
+      所以：
+          right  = 84
+          bottom = 56
+
+      rx=8：
+          圆角半径 8。
+
+      fill=#f3f3f3：
+          浅灰背景。
+
+      由于 rect 位于 path 后面绘制，
+      它会覆盖掉阴影位于矩形内部的部分，
+      最后只剩外侧阴影。
+  -->
+  <rect x="12"
+        y="0"
+        width="72"
+        height="56"
+        rx="8"
+        fill="#f3f3f3"/>
+
+</svg>
+```

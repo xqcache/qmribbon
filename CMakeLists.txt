@@ -12,6 +12,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 endif()
 
 option(QMRIBBON_BUILD_EXAMPLES "" ${MAIN_PROJECT})
+option(QMRIBBON_BUILD_TESTS "" ${MAIN_PROJECT})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,6 +21,10 @@ add_subdirectory(source)
 if(QMRIBBON_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+if (QMRIBBON_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
+
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(

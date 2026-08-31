@@ -5,13 +5,13 @@ find_package(
     6.8
     CONFIG
     REQUIRED
-    COMPONENTS Core Gui Widgets
+    COMPONENTS Core Gui Widgets Svg
 )
 
 set(CMAKE_AUTOMOC ON)
 
 add_library(${TARGET_NAME} STATIC)
-target_link_libraries(${TARGET_NAME} PUBLIC Qt6::Widgets)
+target_link_libraries(${TARGET_NAME} PUBLIC Qt6::Widgets Qt6::Svg)
 
 set(PUBLIC_HEADERS
     qmribbonmainwindow.h
@@ -28,6 +28,9 @@ set(PRIVATE_SOURCES
     qmribbontabbar.cpp
     qmribbonpage.cpp
     qmribbongroup.cpp
+
+    utils/qmribbonshadowgenerator.h
+    utils/qmribbonshadowgenerator.cpp
 )
 
 set(CONTROLS_SOURCES)

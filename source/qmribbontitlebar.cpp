@@ -17,6 +17,7 @@ QmRibbonTitleBar::QmRibbonTitleBar(QWidget* parent)
     , d_(new QmRibbonTitleBarPrivate)
 {
     setObjectName("RibbonTitleBar");
+    setAttribute(Qt::WA_StyledBackground, true);
     initUi();
 }
 
@@ -45,6 +46,9 @@ void QmRibbonTitleBar::initUi()
     d_->btn_maximized->setObjectName("RibbonWindowMaxButton");
     d_->btn_close = new QToolButton(this);
     d_->btn_close->setObjectName("RibbonWindowCloseButton");
+
+    d_->btn_account = new QToolButton(this);
+    d_->btn_account->setObjectName("RibbonAccountButton");
 
     lyt_main->addWidget(d_->btn_account);
     lyt_main->addWidget(d_->btn_minimized);

@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class QmRibbon;
+
 struct QmRibbonMainWindowPrivate;
 
 class QmRibbonMainWindow : public QWidget {
@@ -13,6 +15,11 @@ public:
 
     virtual void setCentralWidget(QWidget* widget);
     QWidget* centralWidget() const;
+
+    QmRibbon* ribbon() const;
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     void initUi();
