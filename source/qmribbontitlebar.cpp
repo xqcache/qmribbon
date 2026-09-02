@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QLabel>
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QPainter>
@@ -22,6 +23,7 @@ struct QmRibbonTitleBarPrivate {
     QToolButton* btn_win_close { nullptr };
 
     QToolButton* btn_logo { nullptr };
+    QLabel* label_brand { nullptr };
 };
 
 QmRibbonTitleBar::QmRibbonTitleBar(QWidget* parent)
@@ -119,6 +121,11 @@ void QmRibbonTitleBar::initUi()
     d_->btn_logo->setIconSize(QSize(18, 18));
     d_->btn_logo->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
+    d_->label_brand = new QLabel(this);
+    d_->label_brand->setObjectName(QStringLiteral("label_brand"));
+    d_->label_brand->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    d_->label_brand->setAttribute(Qt::WA_TransparentForMouseEvents);
+
     d_->btn_user_info = new QToolButton(this);
     d_->btn_user_info->setToolTip(tr("User Information"));
     d_->btn_user_info->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
@@ -137,6 +144,7 @@ void QmRibbonTitleBar::initUi()
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->setSpacing(0);
     lyt_main->addWidget(d_->btn_logo);
+    lyt_main->addWidget(d_->label_brand);
     lyt_main->addWidget(d_->quick_access_toolbar, 0);
     lyt_main->addWidget(blank_widget, 1);
     lyt_main->addWidget(d_->btn_user_info, 0);
@@ -244,4 +252,10 @@ void QmRibbonTitleBar::setLogoIcon(const QIcon& icon)
 void QmRibbonTitleBar::setLogoVisible(bool visible)
 {
     d_->btn_logo->setVisible(visible);
+}
+
+void QmRibbonTitleBar::setBrandText(const QString& text)
+{
+    d_->label_brand->setText(text);
+    d_->label_brand->setVisible(!text.isEmpty());
 }

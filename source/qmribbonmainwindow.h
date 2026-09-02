@@ -2,14 +2,13 @@
 
 #include "qmribbon.h"
 #include "qmribbon_global.h"
-
-#include <QMainWindow>
+#include "qmframelesswindow.h"
 
 class QmRibbonBackstageView;
 
 struct QmRibbonMainWindowPrivate;
 
-class QMRIBBON_API QmRibbonMainWindow : public QMainWindow {
+class QMRIBBON_API QmRibbonMainWindow : public QmFramelessWindow {
     Q_OBJECT
     Q_PROPERTY(bool viewAnimationEnabled READ isViewAnimationEnabled WRITE setViewAnimationEnabled)
 public:

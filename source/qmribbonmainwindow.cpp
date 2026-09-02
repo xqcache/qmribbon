@@ -27,9 +27,10 @@ struct QmRibbonMainWindowPrivate {
 };
 
 QmRibbonMainWindow::QmRibbonMainWindow(QWidget* parent, QmRibbon::Features features, Qt::WindowFlags flags)
-    : QMainWindow(parent, flags)
+    : QmFramelessWindow(parent, flags)
     , d_(new QmRibbonMainWindowPrivate)
 {
+    setFramelessWindowEnabled(!features.testAnyFlag(QmRibbon::NoDefaultTitleBar));
     initUi(features);
     connectSignals();
 }
@@ -375,6 +376,6 @@ void QmRibbonMainWindow::cancelViewTransition()
 
 void QmRibbonMainWindow::showEvent(QShowEvent* event)
 {
-    QMainWindow::showEvent(event);
+    QmFramelessWindow::showEvent(event);
     finishViewTransition();
 }

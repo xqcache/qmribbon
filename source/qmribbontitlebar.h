@@ -26,6 +26,7 @@ public:
 
     void setLogoIcon(const QIcon& icon);
     void setLogoVisible(bool visible);
+    void setBrandText(const QString& text);
 
 protected:
     bool event(QEvent* event) override;
