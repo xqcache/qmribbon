@@ -180,7 +180,7 @@ void QmRibbonPageContainer::resizeEvent(QResizeEvent* event)
 
 void QmRibbonPageContainer::updateFoldButtonGeometry()
 {
-    if (!d_->btn_ribbon_fold || !d_->btn_ribbon_fold->isVisible()) {
+    if (!d_->btn_ribbon_fold || d_->btn_ribbon_fold->isHidden()) {
         return;
     }
 
