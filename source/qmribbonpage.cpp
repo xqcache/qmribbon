@@ -28,17 +28,19 @@ QmRibbonPage::~QmRibbonPage() noexcept
 
 QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& icon, QmRibbonSection::Features features)
 {
+    if (d_->lyt_section->count() > 1) {
+        auto* separator = new QFrame(this);
+        separator->setProperty("Style", "RibbonSectionSeparator");
+        separator->setLineWidth(2);
+        separator->setFrameShape(QFrame::VLine);
+        d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, separator);
+    }
+
     auto* section = new QmRibbonSection(this);
     section->setTitle(title);
     section->setIcon(icon);
     section->setFeatures(features);
     d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, section);
-
-    auto* separator = new QFrame(this);
-    separator->setProperty("Style", "RibbonSectionSeparator");
-    separator->setLineWidth(2);
-    separator->setFrameShape(QFrame::VLine);
-    d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, separator);
 
     emit sectionCreated(section, QPrivateSignal());
     return section;
