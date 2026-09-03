@@ -19,6 +19,12 @@ public:
 
     // 左上角快速访问
     QToolBar* quickAccessToolBar() const;
+    QToolButton* userInfoButton() const;
+    QToolButton* ribbonOptionsButton() const;
+    QToolButton* logoButton() const;
+    QToolButton* minimizeButton() const;
+    QToolButton* maximizeButton() const;
+    QToolButton* closeButton() const;
 
     void setQuickAccessToolBarVisible(bool visible);
     void setUserInfoButtonVisible(bool visible);

@@ -22,6 +22,8 @@ struct QmRibbonTitleBarPrivate {
     QToolButton* btn_win_maximized { nullptr };
     QToolButton* btn_win_close { nullptr };
 
+    QWidget* left_area { nullptr };
+    QWidget* right_area { nullptr };
     QToolButton* btn_logo { nullptr };
     QLabel* label_brand { nullptr };
 };
@@ -47,6 +49,36 @@ QmRibbonTitleBar::~QmRibbonTitleBar() noexcept
 QToolBar* QmRibbonTitleBar::quickAccessToolBar() const
 {
     return d_->quick_access_toolbar;
+}
+
+QToolButton* QmRibbonTitleBar::userInfoButton() const
+{
+    return d_->btn_user_info;
+}
+
+QToolButton* QmRibbonTitleBar::ribbonOptionsButton() const
+{
+    return d_->btn_ribbon_options;
+}
+
+QToolButton* QmRibbonTitleBar::logoButton() const
+{
+    return d_->btn_logo;
+}
+
+QToolButton* QmRibbonTitleBar::minimizeButton() const
+{
+    return d_->btn_win_minimized;
+}
+
+QToolButton* QmRibbonTitleBar::maximizeButton() const
+{
+    return d_->btn_win_maximized;
+}
+
+QToolButton* QmRibbonTitleBar::closeButton() const
+{
+    return d_->btn_win_close;
 }
 
 bool QmRibbonTitleBar::event(QEvent* event)
@@ -100,7 +132,13 @@ void QmRibbonTitleBar::paintEvent(QPaintEvent* event)
     initPainter(&painter);
     painter.setRenderHint(QPainter::TextAntialiasing);
     painter.setPen(Qt::black);
-    painter.drawText(rect(), Qt::AlignCenter, windowTitle());
+
+    const int side_width = qMax(d_->left_area->width(), d_->right_area->width());
+    const QRect title_rect = rect().adjusted(side_width, 0, -side_width, 0);
+    if (title_rect.width() > 0) {
+        const QString title = painter.fontMetrics().elidedText(windowTitle(), Qt::ElideMiddle, title_rect.width());
+        painter.drawText(title_rect, Qt::AlignCenter, title);
+    }
 }
 
 void QmRibbonTitleBar::mouseDoubleClickEvent(QMouseEvent* event)
@@ -113,51 +151,62 @@ void QmRibbonTitleBar::mouseDoubleClickEvent(QMouseEvent* event)
 
 void QmRibbonTitleBar::initUi()
 {
-    d_->quick_access_toolbar = new QToolBar(this);
+    d_->left_area = new QWidget(this);
+    d_->left_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-    d_->btn_logo = new QToolButton(this);
+    d_->right_area = new QWidget(this);
+    d_->right_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+    d_->quick_access_toolbar = new QToolBar(d_->left_area);
+
+    d_->btn_logo = new QToolButton(d_->left_area);
     d_->btn_logo->setProperty("Style", "RibbonApplicationLogo");
     d_->btn_logo->setToolButtonStyle(Qt::ToolButtonIconOnly);
     d_->btn_logo->setIconSize(QSize(18, 18));
     d_->btn_logo->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    d_->btn_logo->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    d_->label_brand = new QLabel(this);
+    d_->label_brand = new QLabel(d_->left_area);
     d_->label_brand->setObjectName(QStringLiteral("label_brand"));
     d_->label_brand->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     d_->label_brand->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    d_->btn_user_info = new QToolButton(this);
+    d_->btn_user_info = new QToolButton(d_->right_area);
     d_->btn_user_info->setToolTip(tr("User Information"));
     d_->btn_user_info->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-    d_->btn_ribbon_options = new QToolButton(this);
+    d_->btn_ribbon_options = new QToolButton(d_->right_area);
     d_->btn_ribbon_options->setToolTip(tr("Ribbon Options"));
     d_->btn_ribbon_options->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-    auto* blank_widget = new QWidget(this);
-    blank_widget->setObjectName("hit_area");
-    blank_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    blank_widget->setAttribute(Qt::WA_TransparentForMouseEvents);
-    blank_widget->setMinimumWidth(300);
+    auto* lyt_left = new QHBoxLayout(d_->left_area);
+    lyt_left->setContentsMargins(0, 0, 0, 0);
+    lyt_left->setSpacing(0);
+    lyt_left->addWidget(d_->btn_logo);
+    lyt_left->addWidget(d_->label_brand);
+    lyt_left->addWidget(d_->quick_access_toolbar);
+
+    auto* lyt_right = new QHBoxLayout(d_->right_area);
+    lyt_right->setContentsMargins(0, 0, 0, 0);
+    lyt_right->setSpacing(0);
+    lyt_right->addWidget(d_->btn_user_info);
+    lyt_right->addWidget(d_->btn_ribbon_options);
 
     auto* lyt_main = new QHBoxLayout(this);
     lyt_main->setContentsMargins(0, 0, 0, 0);
     lyt_main->setSpacing(0);
-    lyt_main->addWidget(d_->btn_logo);
-    lyt_main->addWidget(d_->label_brand);
-    lyt_main->addWidget(d_->quick_access_toolbar, 0);
-    lyt_main->addWidget(blank_widget, 1);
-    lyt_main->addWidget(d_->btn_user_info, 0);
-    lyt_main->addWidget(d_->btn_ribbon_options, 0);
+    lyt_main->addWidget(d_->left_area);
+    lyt_main->addStretch(1);
+    lyt_main->addWidget(d_->right_area);
 
     initWindowButtons();
 }
 
 void QmRibbonTitleBar::initWindowButtons()
 {
-    d_->btn_win_minimized = new QToolButton(this);
-    d_->btn_win_maximized = new QToolButton(this);
-    d_->btn_win_close = new QToolButton(this);
+    d_->btn_win_minimized = new QToolButton(d_->right_area);
+    d_->btn_win_maximized = new QToolButton(d_->right_area);
+    d_->btn_win_close = new QToolButton(d_->right_area);
 
     d_->btn_win_minimized->setObjectName("btn_win_minimized");
     d_->btn_win_maximized->setObjectName("btn_win_maximized");
@@ -177,13 +226,10 @@ void QmRibbonTitleBar::initWindowButtons()
         d_->btn_win_maximized->setText("\u2101");
     }
 
-    auto* lyt_win_buttons = new QHBoxLayout();
-    lyt_win_buttons->setContentsMargins(0, 0, 0, 0);
-    lyt_win_buttons->setSpacing(0);
-    lyt_win_buttons->addWidget(d_->btn_win_minimized);
-    lyt_win_buttons->addWidget(d_->btn_win_maximized);
-    lyt_win_buttons->addWidget(d_->btn_win_close);
-    static_cast<QBoxLayout*>(layout())->addLayout(lyt_win_buttons, 0);
+    auto* lyt_right = static_cast<QBoxLayout*>(d_->right_area->layout());
+    lyt_right->addWidget(d_->btn_win_minimized);
+    lyt_right->addWidget(d_->btn_win_maximized);
+    lyt_right->addWidget(d_->btn_win_close);
 }
 
 void QmRibbonTitleBar::initStyleSheetKey()

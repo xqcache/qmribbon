@@ -2,6 +2,7 @@
 
 #include "qmribbon.h"
 #include "qmribbonbackstageview.h"
+#include "qmribbontitlebar.h"
 
 #include <QEasingCurve>
 #include <QParallelAnimationGroup>
@@ -9,6 +10,8 @@
 #include <QPropertyAnimation>
 #include <QStackedLayout>
 #include <QStackedWidget>
+#include <QToolBar>
+#include <QToolButton>
 
 struct QmRibbonMainWindowPrivate {
     QmRibbon* ribbon { nullptr };
@@ -27,10 +30,9 @@ struct QmRibbonMainWindowPrivate {
 };
 
 QmRibbonMainWindow::QmRibbonMainWindow(QWidget* parent, QmRibbon::Features features, Qt::WindowFlags flags)
-    : QmFramelessWindow(parent, flags)
+    : QmFramelessWindow(parent, flags, !features.testAnyFlag(QmRibbon::NoDefaultTitleBar))
     , d_(new QmRibbonMainWindowPrivate)
 {
-    setFramelessWindowEnabled(!features.testAnyFlag(QmRibbon::NoDefaultTitleBar));
     initUi(features);
     connectSignals();
 }
@@ -45,6 +47,16 @@ QmRibbonMainWindow::~QmRibbonMainWindow() noexcept
 void QmRibbonMainWindow::initUi(QmRibbon::Features features)
 {
     d_->ribbon = QmRibbon::install(this, features);
+    auto* title_bar = d_->ribbon->titleBar();
+    setWindowTitleBar(title_bar);
+    setWindowIconButton(title_bar->logoButton());
+    setMinimizeButton(title_bar->minimizeButton());
+    setMaximizeButton(title_bar->maximizeButton());
+    setCloseButton(title_bar->closeButton());
+    setHitTestVisible(title_bar->quickAccessToolBar());
+    setHitTestVisible(title_bar->userInfoButton());
+    setHitTestVisible(title_bar->ribbonOptionsButton());
+
     d_->central_widget = new QStackedWidget(this);
     setCentralWidget(d_->central_widget);
 }
