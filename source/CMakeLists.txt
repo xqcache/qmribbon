@@ -43,7 +43,15 @@ else()
 endif()
 
 target_sources(${TARGET_NAME} PRIVATE ${PRIVATE_SOURCES})
-target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_VERSION_MAJOR}::Widgets qmwidgets PRIVATE Qt${QT_VERSION_MAJOR}::Svg qmribbon_assets)
+target_link_libraries(${TARGET_NAME}
+    PUBLIC
+        Qt${QT_VERSION_MAJOR}::Widgets
+        "$<BUILD_INTERFACE:qmwidgets>"
+        "$<INSTALL_INTERFACE:qmwidgets::qmwidgets>"
+    PRIVATE
+        Qt${QT_VERSION_MAJOR}::Svg
+        qmribbon_assets
+)
 target_include_directories(${TARGET_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>" "$<INSTALL_INTERFACE:include>")
 
 include(GNUInstallDirs)
