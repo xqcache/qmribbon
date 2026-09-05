@@ -31,7 +31,8 @@ QmRibbonSection* QmRibbonPage::addSection(const QString& title, const QIcon& ico
     if (d_->lyt_section->count() > 1) {
         auto* separator = new QFrame(this);
         separator->setProperty("Style", "RibbonSectionSeparator");
-        separator->setLineWidth(2);
+        separator->setLineWidth(1);
+        separator->setFrameShadow(QFrame::Plain);
         separator->setFrameShape(QFrame::VLine);
         d_->lyt_section->insertWidget(d_->lyt_section->count() - 1, separator);
     }
