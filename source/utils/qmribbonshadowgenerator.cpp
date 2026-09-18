@@ -1,6 +1,9 @@
 #include "qmribbonshadowgenerator.h"
+
 #include <QDebug>
-#include <QImageReader>
+#include <QPainter>
+#include <QSvgRenderer>
+
 #include <format>
 
 namespace {
@@ -8,43 +11,32 @@ namespace {
 constexpr std::string_view kShadowSvgTemplate = R"SVG(<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      width="{0}"
-     height="{1}"
-     viewBox="0 0 {0} {1}">
+     height="{0}"
+     viewBox="0 0 {0} {0}">
 
   <defs>
     <filter id="soft"
-            x="-40%"
-            y="-30%"
-            width="180%"
-            height="180%"
-            filterUnits="objectBoundingBox">
-      <feGaussianBlur stdDeviation="{2}"/>
+            filterUnits="userSpaceOnUse"
+            x="-{1}"
+            y="-{1}"
+            width="{2}"
+            height="{2}">
+      <feGaussianBlur stdDeviation="{3}"/>
     </filter>
   </defs>
 
-  <path d="M{3} {4}
-           V{5}
-           Q{3} {6} {7} {6}
-           H{8}
-           Q{9} {6} {9} {5}
-           V{4}"
+  <rect x="{4}"
+        y="{4}"
+        width="{5}"
+        height="{5}"
+        rx="{6}"
+        ry="{6}"
         fill="none"
-        stroke="{10}"
-        stroke-width="{11}"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-opacity="{12}"
-        transform="translate({13} {14})"
+        stroke="{7}"
+        stroke-width="{8}"
+        stroke-opacity="{9}"
+        transform="translate({10} {11})"
         filter="url(#soft)"/>
-
-  <rect x="{15}"
-        y="{16}"
-        width="{17}"
-        height="{18}"
-        rx="{19}"
-        ry="{19}"
-        fill="{20}"
-        fill-opacity="{21}"/>
 
 </svg>
 )SVG";
@@ -53,72 +45,96 @@ constexpr std::string_view kShadowSvgTemplate = R"SVG(<?xml version="1.0" encodi
 
 QImage QmRibbonShadowGenerator::generate(const Options& options)
 {
-    if (options.size.isEmpty()) {
-        return { };
-    }
+    const int spread = qMax(2, options.spread);
+    const int center = qMax(1, options.center);
+    const int size = 2 * spread + center;
 
-    const qreal radius = options.radius;
+    const qreal radius = qBound(0.0, options.radius, static_cast<qreal>(spread));
+    const qreal sigma = spread / 4.0;
+    const qreal stroke_width = 2.0;
+    const int pad = spread;
+    const int filter_size = size + 2 * pad;
 
-    const qreal left = options.content_margins.left();
-    const qreal top = options.content_margins.top();
-    const qreal right = options.size.width() - options.content_margins.right();
-    const qreal bottom = options.size.height() - options.content_margins.bottom();
-
-    const qreal top_radius_y = top + radius;
-    const qreal bottom_radius_y = bottom - radius;
-    const qreal left_radius_x = left + radius;
-    const qreal right_radius_x = right - radius;
-
-    const QString shadow_rgb = options.shadow_color.name(QColor::HexRgb);
-    const QString center_rgb = options.center_color.name(QColor::HexRgb);
-
-    const qreal shadow_opacity = options.shadow_color.alphaF();
-    const qreal center_opacity = options.center_color.alphaF();
-
-    const qreal stroke_width = std::max<qreal>(1.0, radius * 0.8);
+    const QString rgb = options.color.name(QColor::HexRgb);
+    const qreal opacity = options.color.alphaF();
 
     // clang-format off
     const QString svg = QString::fromStdString(std::format(
         kShadowSvgTemplate,
-        options.size.width(),        // {0}
-        options.size.height(),       // {1}
-        options.blur,                // {2}
-
-        left,                        // {3}
-        top_radius_y,                  // {4}
-        bottom_radius_y,               // {5}
-        bottom,                      // {6}
-        left_radius_x,                 // {7}
-        right_radius_x,                // {8}
-        right,                       // {9}
-
-        shadow_rgb.toStdString(),     // {10}
-        options.blur,                 // {11}
-        shadow_opacity,               // {12}
-
-        options.offset.x(),          // {13}
-        options.offset.y(),          // {14}
-
-        left,     // {15}
-        top,     // {16}
-        (options.size.width() - options.content_margins.left() - options.content_margins.right()), // {17}
-        (options.size.height() - options.content_margins.top() - options.content_margins.bottom()),// {18}
-
-        radius,                      // {19}
-        center_rgb.toStdString(),     // {20}
-        center_opacity                // {21}
+        size,                          // {0}
+        pad,                           // {1}
+        filter_size,                   // {2}
+        sigma,                         // {3}
+        spread,                        // {4}
+        center,                        // {5}
+        radius,                        // {6}
+        rgb.toStdString(),             // {7}
+        stroke_width,                  // {8}
+        opacity,                       // {9}
+        options.offset.x(),            // {10}
+        options.offset.y()             // {11}
     ));
     // clang-format on
 
-    qDebug() << svg.toStdString().data();
-    qDebug() << QImageReader::supportedImageFormats();
+    // 直接使用 Qt6::Svg 模块渲染，避免依赖运行时的 svg imageformat 插件。
+    QSvgRenderer renderer(svg.toUtf8());
+    if (!renderer.isValid()) {
+        qWarning() << "QmRibbonShadowGenerator: failed to render shadow SVG";
+        return {};
+    }
 
-    QImage image;
+    QImage image(size, size, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
 
-    if (!image.loadFromData(svg.toUtf8(), "SVG")) {
-        qWarning() << "Failed to load SVG from generated data.";
-        return { };
+    {
+        QPainter painter(&image);
+        renderer.render(&painter);
     }
 
     return image;
+}
+
+void QmRibbonShadowGenerator::draw(QPainter* painter, const QRect& target, const QImage& shadow, int border)
+{
+    if (painter == nullptr || shadow.isNull() || border <= 0) {
+        return;
+    }
+
+    const int width = shadow.width();
+    const int height = shadow.height();
+
+    if (width <= 2 * border || height <= 2 * border) {
+        return;
+    }
+
+    const int band_width = width - 2 * border;
+    const int band_height = height - 2 * border;
+
+    // 四角：按原尺寸绘制
+    const QRect source_corners[4] = {
+        { 0, 0, border, border },
+        { width - border, 0, border, border },
+        { 0, height - border, border, border },
+        { width - border, height - border, border, border },
+    };
+    const QRect target_corners[4] = {
+        { target.left() - border, target.top() - border, border, border },
+        { target.right() + 1, target.top() - border, border, border },
+        { target.left() - border, target.bottom() + 1, border, border },
+        { target.right() + 1, target.bottom() + 1, border, border },
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        painter->drawImage(target_corners[i], shadow, source_corners[i]);
+    }
+
+    // 四边：单方向拉伸
+    painter->drawImage(QRect(target.left(), target.top() - border, target.width(), border), shadow,
+                       QRect(border, 0, band_width, border));
+    painter->drawImage(QRect(target.left(), target.bottom() + 1, target.width(), border), shadow,
+                       QRect(border, height - border, band_width, border));
+    painter->drawImage(QRect(target.left() - border, target.top(), border, target.height()), shadow,
+                       QRect(0, border, border, band_height));
+    painter->drawImage(QRect(target.right() + 1, target.top(), border, target.height()), shadow,
+                       QRect(width - border, border, border, band_height));
 }

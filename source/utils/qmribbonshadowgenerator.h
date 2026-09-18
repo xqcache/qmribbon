@@ -1,25 +1,34 @@
 #pragma once
 
+#include <QColor>
 #include <QImage>
+#include <QPointF>
+#include <QRect>
 
+class QPainter;
+
+/// 生成可九宫格（9-slice）拉伸的窗口阴影贴图。
+///
+/// 生成的图片中心为全透明，只包含四周的柔和阴影，
+/// 因此可以按边/角切片后拉伸到任意窗口尺寸。
 class QmRibbonShadowGenerator {
 public:
     struct Options {
-        QSize size { 96, 96 };
-
-        qreal radius = 5.0;
-        qreal blur = 10.0;
-        QPointF offset { 0, 6.0 };
-
-        QMarginsF content_margins { 10, 10, 10, 10 };
-        QColor shadow_color = Qt::black;
-        QColor center_color;
+        /// 阴影向外扩散的距离，同时也是九宫格边框宽度。
+        int spread { 12 };
+        /// 窗口圆角半径，取值范围 [0, spread]。
+        qreal radius { 0.0 };
+        /// 中间可拉伸区域的边长，只需大于 0。
+        int center { 8 };
+        /// 阴影整体偏移，通常向下偏移一点。
+        QPointF offset { 0.0, 3.0 };
+        /// 阴影颜色（alpha 决定深浅）。
+        QColor color { 0, 0, 0, 60 };
     };
 
-    QImage generate() const;
-
+    /// 生成阴影贴图，尺寸为 2 * spread + center。
     static QImage generate(const Options& options);
 
-private:
-    Options optoins_;
+    /// 把阴影绘制到 target 之外，target 为窗口内容矩形，border 必须等于生成时的 spread。
+    static void draw(QPainter* painter, const QRect& target, const QImage& shadow, int border);
 };

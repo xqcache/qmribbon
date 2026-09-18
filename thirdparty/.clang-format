@@ -1,0 +1,5 @@
+# 第三方内联源码：保持上游原样，禁止格式化。
+# clang-format 会从被处理的文件向上查找最近的 .clang-format，
+# 因此本文件可以挡住对整个仓库执行 clang-format -i 时对第三方的改动。
+DisableFormat: true
+SortIncludes: Never

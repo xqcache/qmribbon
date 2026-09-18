@@ -11,6 +11,13 @@ find_dependency(
     Core
     Gui
     Widgets
+    Svg
 )
+
+# 无边框窗口依赖 QWindowKit（随包一起安装，或由使用方自行提供）。
+find_dependency(QWindowKit COMPONENTS Widgets)
+
+# 停靠系统依赖 Qt Advanced Docking System。注意其包名带 Qt 主版本号。
+find_dependency(qtadvanceddocking-qt6)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")

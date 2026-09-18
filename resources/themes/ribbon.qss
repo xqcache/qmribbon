@@ -1,0 +1,763 @@
+/* qmribbon 样式表模板
+ *
+ * 与主题无关：这里只描述控件结构与尺寸，颜色全部写成 @{accent} 占位符，
+ * 由 QmRibbonTheme 依据主题配置（resources/themes/*.json）替换后使用。
+ * 新增配色键时，只要在主题 JSON 的 colors 里给出同名键即可。
+ */
+/* ---------- 容器 ---------- */
+#RibbonWindow {
+    background-color: @{windowBackground};
+}
+
+#Ribbon,
+#RibbonTitleBar,
+#RibbonTabBar {
+    background-color: @{windowBackground};
+}
+
+#RibbonPageStack {
+    background-color: @{contentBackground};
+}
+
+/* ---------- 标题栏 ---------- */
+#RibbonWindowTitle {
+    color: @{text};
+    font-size: 12px;
+    background: transparent;
+}
+
+#RibbonAppIconButton,
+#RibbonAccountButton {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+#RibbonAppIconButton:hover,
+#RibbonAccountButton:hover {
+    background-color: @{hover};
+}
+
+/* ---------- Quick Access Bar ---------- */
+#RibbonQuickAccessButton {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+#RibbonQuickAccessButton:hover {
+    background-color: @{hover};
+}
+
+#RibbonQuickAccessButton:pressed {
+    background-color: @{pressed};
+}
+
+#RibbonQuickAccessButton:disabled {
+    background: transparent;
+}
+
+#RibbonQuickAccessSeparator {
+    color: @{border};
+    background-color: @{border};
+    max-width: 1px;
+    border: none;
+}
+
+/* ---------- Ribbon Tab ---------- */
+#RibbonFileButton {
+    background: transparent;
+    border: none;
+    color: @{text};
+    font-size: 12px;
+    padding: 0 10px;
+}
+
+#RibbonFileButton:hover {
+    background-color: @{hover};
+}
+
+#RibbonFileButton:pressed {
+    background-color: @{pressed};
+}
+
+#RibbonCollapseButton,
+#RibbonHelpButton {
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+#RibbonCollapseButton:hover,
+#RibbonHelpButton:hover {
+    background-color: @{hover};
+}
+
+/* ---------- Ribbon Group ---------- */
+#RibbonGroup {
+    background: transparent;
+}
+
+#RibbonGroupTitle {
+    color: @{secondaryText};
+    font-size: 11px;
+    background: transparent;
+}
+
+#RibbonLauncherButton {
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    padding: 0;
+}
+
+#RibbonLauncherButton:hover {
+    background-color: @{hover};
+}
+
+/* ---------- Ribbon 按钮 ---------- */
+#RibbonLargeButton,
+#RibbonMediumButton,
+#RibbonSmallButton {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: @{text};
+    padding: 1px;
+}
+
+#RibbonLargeButton {
+    font-size: 11px;
+}
+
+#RibbonMediumButton,
+#RibbonSmallButton {
+    font-size: 12px;
+}
+
+#RibbonLargeButton:hover,
+#RibbonMediumButton:hover,
+#RibbonSmallButton:hover {
+    background-color: @{hover};
+    border-color: @{border};
+}
+
+#RibbonLargeButton:pressed,
+#RibbonMediumButton:pressed,
+#RibbonSmallButton:pressed {
+    background-color: @{pressed};
+    border-color: @{borderStrong};
+}
+
+#RibbonLargeButton:checked,
+#RibbonMediumButton:checked,
+#RibbonSmallButton:checked {
+    background-color: @{buttonChecked};
+    border-color: @{buttonCheckedBorder};
+}
+
+#RibbonLargeButton:disabled,
+#RibbonMediumButton:disabled,
+#RibbonSmallButton:disabled {
+    color: @{disabledText};
+}
+
+/* ---------- Qt 常用控件 ----------
+ * 框架之外的界面也用同一套配色，否则会出现「Ribbon 是 Office、别处是 Fusion」的割裂感。
+ *
+ * 三条自我约束：
+ *   1. 只做「配色 + 描边 + 悬停 / 选中 / 禁用态」，**不动字体和最小尺寸** ——
+ *      字号与控件高度交给应用自己的设置和布局，免得把别人的版式挤变形；
+ *   2. 只有确实要跟着主题走的控件才写 color（按钮 / 输入框 / 视图 / 菜单），
+ *      `QLabel`、复选框与单选的文字留给调色板（它是全局生效的），
+ *      免得压掉业务自己设过的颜色；
+ *   3. 只覆盖第三方控件**没有声明**的属性。控件自身的样式表优先级高于祖先（窗口）的
+ *      样式表，所以停靠系统（ADS）里已经声明过的属性不会被这里盖掉，
+ *      例如 ADS 的标签页有自己的 padding / border / background。
+ * 需要另一套外观的场合，在那一层的样式表里覆盖即可。
+ *
+ * 一个必须知道的副作用：`QPushButton` 的通用内边距（`padding: 4px 14px`）会**吃掉固定尺寸
+ * 按钮的内容区** —— 36×36 的图标按钮只剩 8px，里面的「←」会被挤成一小段。
+ * 所以固定尺寸 / 纯图标按钮一定要自己声明 `padding: 0`（见下面的 #BackstageBackButton）。 */
+
+/* --- 按钮 --- */
+QPushButton {
+    background-color: @{contentBackground};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    color: @{text};
+    padding: 4px 14px;
+}
+
+QPushButton:hover {
+    background-color: @{hover};
+    border-color: @{borderHover};
+}
+
+QPushButton:pressed {
+    background-color: @{pressed};
+    border-color: @{borderStrong};
+}
+
+QPushButton:checked {
+    background-color: @{buttonChecked};
+    border-color: @{buttonCheckedBorder};
+}
+
+QPushButton:focus,
+QPushButton:default {
+    border-color: @{accent};
+}
+
+QPushButton:disabled {
+    background-color: @{windowBackground};
+    border-color: @{border};
+    color: @{disabledText};
+}
+
+/* 工具按钮只改**文字色**，基础态刻意不写 background：
+ *
+ *   1. 一旦声明 border / padding / border-radius 这类盒模型属性，Qt 会改用
+ *      「内容 + 盒模型」算尺寸（QStyleSheetStyle::sizeFromContents），把原生样式的
+ *      按钮边距丢掉，工具栏 / 停靠区标题栏的按钮大小就跟着变；
+ *   2. 更隐蔽的是 background：QStyleSheetStyle 会把 `QPalette::Button` 换成我们给的画刷
+ *      再交给原生样式去画按钮，而 `transparent` = rgba(0,0,0,0) 这种「透明黑」在部分
+ *      Qt 版本上会被当成**不透明黑**画出来 —— 现象就是「ToolButton 没悬停 / 没选中时
+ *      是黑底黑字的一团」。不写 background 就不碰 Button 角色，自然没有这个坑。
+ *
+ * 悬停 / 按下 / 选中这几个状态用的是**不透明**主题色，可以放心写。
+ * 想要平铺（无边框）的工具按钮，让控件自己 `setAutoRaise(true)`：
+ * 那样基础态由样式表直接画，Ribbon 自己的按钮就是这么做的。 */
+QToolButton {
+    color: @{text};
+}
+
+QToolButton:hover {
+    background-color: @{hover};
+}
+
+QToolButton:pressed {
+    background-color: @{pressed};
+}
+
+QToolButton:checked {
+    background-color: @{buttonChecked};
+}
+
+QToolButton:disabled {
+    color: @{disabledText};
+}
+
+/* --- 单行输入 / 数值输入 --- */
+QLineEdit,
+QAbstractSpinBox {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    color: @{text};
+    padding: 2px 6px;
+    selection-background-color: @{accent};
+    selection-color: @{onAccent};
+}
+
+QLineEdit:hover,
+QAbstractSpinBox:hover {
+    border-color: @{borderHover};
+}
+
+QLineEdit:focus,
+QAbstractSpinBox:focus {
+    border-color: @{accent};
+}
+
+QLineEdit:disabled,
+QAbstractSpinBox:disabled {
+    background-color: @{windowBackground};
+    border-color: @{border};
+    color: @{disabledText};
+}
+
+QLineEdit:read-only {
+    background-color: @{windowBackground};
+}
+
+/* 数值输入的上下按钮：给一条分隔线；箭头仍交给样式自己画（颜色跟随调色板）。 */
+QSpinBox::up-button,
+QDoubleSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+    background: transparent;
+    border-left: 1px solid @{border};
+    border-bottom: 1px solid @{border};
+    border-top-right-radius: 3px;
+}
+
+QSpinBox::down-button,
+QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
+    background: transparent;
+    border-left: 1px solid @{border};
+    border-bottom-right-radius: 3px;
+}
+
+QSpinBox::up-button:hover,
+QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover,
+QDoubleSpinBox::down-button:hover {
+    background-color: @{hover};
+}
+
+QSpinBox::up-button:pressed,
+QDoubleSpinBox::up-button:pressed,
+QSpinBox::down-button:pressed,
+QDoubleSpinBox::down-button:pressed {
+    background-color: @{pressed};
+}
+
+/* 上下箭头和下拉框用同一套 chevron（同样是明暗各一份的 SVG）。 */
+QSpinBox::up-arrow,
+QDoubleSpinBox::up-arrow {
+    image: url(@{chevronUp});
+    width: 9px;
+    height: 9px;
+}
+
+QSpinBox::down-arrow,
+QDoubleSpinBox::down-arrow {
+    image: url(@{chevronDown});
+    width: 9px;
+    height: 9px;
+}
+
+/* --- 多行编辑器 ---
+ * 它是「正文区域」而不是输入框：不画边框，免得和停靠区的框叠成双层。 */
+QTextEdit,
+QPlainTextEdit {
+    background-color: @{contentBackground};
+    border: none;
+    color: @{text};
+    selection-background-color: @{accent};
+    selection-color: @{onAccent};
+}
+
+/* --- 下拉框（Ribbon 里的 QmRibbonComboBox 有自己的 #RibbonComboBox 规则） --- */
+QComboBox {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    color: @{text};
+    padding: 1px 4px;
+    min-height: 20px;
+}
+
+QComboBox:hover {
+    border-color: @{borderHover};
+}
+
+QComboBox:focus,
+QComboBox:on {
+    border-color: @{accent};
+}
+
+QComboBox:disabled {
+    background-color: @{windowBackground};
+    border-color: @{border};
+    color: @{disabledText};
+}
+
+/* 下拉按钮区：右侧独立一条，带分隔线与悬停底色。
+ * 这条规则不能省 —— 只写 QComboBox 的边框时，箭头会直接浮在输入区上面，
+ * 长条目文字也会跑到箭头底下（QComboBox 只有在 ::drop-down 有几何时才把文字区让出来）。 */
+QComboBox::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left: 1px solid @{border};
+    background: transparent;
+}
+
+QComboBox::drop-down:hover {
+    background-color: @{hover};
+}
+
+QComboBox::drop-down:on {
+    background-color: @{pressed};
+}
+
+/* 箭头用主题自带的 SVG：明暗各一份，由 QmRibbonTheme::asset() 挑，
+ * 几何与 QmRibbonComboBox 自绘的那条 chevron 一致。 */
+QComboBox::down-arrow {
+    image: url(@{chevronDown});
+    width: 10px;
+    height: 10px;
+}
+
+/* 普通下拉框的弹出列表：一层 1px 细框。
+ *
+ * 前提是装了 QmRibbonStyle（见 source/style/qmribbonstyle.h）：它把组合框的
+ * 「弹出菜单」画法关掉，弹窗于是完全由这条规则控制。
+ * 不装那个样式时，Qt 会给非可编辑的下拉弹窗画一层**原生菜单外框**，而且那层框
+ * 在样式表里删不掉（Qt 把 QComboBoxPrivateContainer 标成不可命中样式表），
+ * 这时再画一层就是「双层框」—— 那种情况下请把这行 border 改成 none。 */
+QComboBox QAbstractItemView {
+    background-color: @{contentBackground};
+    border: 1px solid @{borderStrong};
+    color: @{text};
+    outline: 0;
+    selection-background-color: @{buttonChecked};
+    selection-color: @{text};
+}
+
+/* --- 复选 / 单选 ---
+ * 只调间距：文字颜色和指示器由调色板负责（QmRibbonTheme::palette() 已经设过），
+ * 这里再写 color 反而会压掉业务自己设置的文字颜色。 */
+QCheckBox,
+QRadioButton {
+    spacing: 6px;
+}
+
+/* --- 列表 / 树 / 表格 --- */
+QListView,
+QTreeView,
+QTableView,
+QColumnView {
+    background-color: @{contentBackground};
+    alternate-background-color: @{surface};
+    border: 1px solid @{border};
+    color: @{text};
+    outline: 0;
+    selection-background-color: @{buttonChecked};
+    selection-color: @{text};
+}
+
+QListView::item:hover,
+QTreeView::item:hover,
+QTableView::item:hover {
+    background-color: @{hover};
+}
+
+QListView::item:selected,
+QTreeView::item:selected,
+QTableView::item:selected {
+    background-color: @{buttonChecked};
+    color: @{text};
+}
+
+QHeaderView {
+    background-color: @{surface};
+    border: none;
+}
+
+QHeaderView::section {
+    background-color: @{surface};
+    border: none;
+    border-right: 1px solid @{border};
+    border-bottom: 1px solid @{border};
+    color: @{secondaryText};
+    padding: 4px 8px;
+}
+
+QHeaderView::section:hover {
+    background-color: @{surfaceHover};
+}
+
+QTableCornerButton::section {
+    background-color: @{surface};
+    border: none;
+    border-right: 1px solid @{border};
+    border-bottom: 1px solid @{border};
+}
+
+/* --- 选项卡（Ribbon 的 Tab 栏是自绘的 #RibbonTabBar，不在这里） --- */
+QTabWidget::pane {
+    background-color: @{contentBackground};
+    border: 1px solid @{border};
+    top: -1px;
+}
+
+QTabBar::tab {
+    background-color: @{windowBackground};
+    border: 1px solid @{border};
+    border-bottom: none;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    color: @{secondaryText};
+    margin-right: 2px;
+    padding: 5px 14px;
+}
+
+QTabBar::tab:hover {
+    background-color: @{hover};
+    color: @{text};
+}
+
+QTabBar::tab:selected {
+    background-color: @{contentBackground};
+    border-color: @{borderStrong};
+    color: @{text};
+}
+
+QTabBar::tab:disabled {
+    color: @{disabledText};
+}
+
+/* --- 菜单 --- */
+QMenuBar {
+    background-color: @{windowBackground};
+    color: @{text};
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 4px 10px;
+}
+
+QMenuBar::item:selected {
+    background-color: @{hover};
+}
+
+QMenu {
+    background-color: @{contentBackground};
+    border: 1px solid @{borderStrong};
+    color: @{text};
+    padding: 4px;
+}
+
+QMenu::item {
+    background: transparent;
+    border-radius: 3px;
+    padding: 5px 26px;
+}
+
+QMenu::item:selected {
+    background-color: @{hover};
+    color: @{text};
+}
+
+QMenu::item:disabled {
+    color: @{disabledText};
+}
+
+QMenu::separator {
+    background-color: @{separator};
+    height: 1px;
+    margin: 4px 10px;
+}
+
+/* --- 分组框 / 分隔件 / 进度条 --- */
+QGroupBox {
+    background: transparent;
+    border: 1px solid @{border};
+    border-radius: 4px;
+    color: @{text};
+    margin-top: 10px;
+    padding-top: 8px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: @{secondaryText};
+}
+
+QSplitter::handle {
+    background-color: @{separator};
+}
+
+QSplitter::handle:hover {
+    background-color: @{borderStrong};
+}
+
+QProgressBar {
+    background-color: @{surface};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    color: @{text};
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: @{accent};
+    border-radius: 2px;
+}
+
+/* --- 滚动条：细把手、无箭头按钮 --- */
+QScrollBar:vertical {
+    background: transparent;
+    border: none;
+    margin: 0;
+    width: 12px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: @{borderStrong};
+    border-radius: 4px;
+    margin: 2px;
+    min-height: 24px;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    border: none;
+    height: 12px;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: @{borderStrong};
+    border-radius: 4px;
+    margin: 2px;
+    min-width: 24px;
+}
+
+QScrollBar::handle:hover,
+QScrollBar::handle:pressed {
+    background-color: @{borderHover};
+}
+
+QScrollBar::add-line,
+QScrollBar::sub-line {
+    background: none;
+    border: none;
+    height: 0;
+    width: 0;
+}
+
+QScrollBar::add-page,
+QScrollBar::sub-page {
+    background: none;
+}
+
+/* --- 标签 / 对话框 ---
+ * QLabel 故意不写：它的文字颜色（含禁用态）由调色板负责，调色板是全局生效的，
+ * 写死 color 只会压掉业务自己设过的颜色。这里只保证对话框底色统一。 */
+QDialog {
+    background-color: @{windowBackground};
+}
+
+/* ---------- Group 内的原生控件 ---------- */
+#RibbonGroup QComboBox,
+#RibbonGroup QLineEdit {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    padding: 1px 4px;
+    min-height: 20px;
+    font-size: 12px;
+}
+
+#RibbonGroup QComboBox:hover,
+#RibbonGroup QLineEdit:hover {
+    border-color: @{borderHover};
+}
+
+#RibbonGroup QComboBox:focus,
+#RibbonGroup QLineEdit:focus {
+    border-color: @{accent};
+}
+
+/* ---------- QmRibbonComboBox ----------
+ * 选择器要带上 #RibbonGroup 前缀：上面「Group 内的原生控件」那条规则
+ *（#RibbonGroup QComboBox）比 #RibbonComboBox 多一个类型选择器，特异性更高，
+ * 只写 #RibbonComboBox 会被它压过去。
+ * 外观参考 Word 的「字体 / 字号」框：直角、1px 细边框、右侧独立的下拉按钮区。 */
+#RibbonComboBox,
+#RibbonGroup #RibbonComboBox {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 0;
+    padding: 0 6px;
+    color: @{text};
+    font-size: 12px;
+    min-height: 20px;
+}
+
+#RibbonComboBox:hover,
+#RibbonGroup #RibbonComboBox:hover {
+    border-color: @{borderHover};
+}
+
+#RibbonComboBox:focus,
+#RibbonComboBox:on,
+#RibbonGroup #RibbonComboBox:focus,
+#RibbonGroup #RibbonComboBox:on {
+    border-color: @{accent};
+}
+
+#RibbonComboBox:disabled,
+#RibbonGroup #RibbonComboBox:disabled {
+    background-color: @{windowBackground};
+    color: @{disabledText};
+}
+
+#RibbonComboBox::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 20px; /* 与 QmRibbonMetrics::combo_dropdown_width 一致 */
+    border-left: 1px solid @{border};
+    background: transparent;
+}
+
+#RibbonComboBox::drop-down:hover,
+#RibbonComboBox::drop-down:on {
+    background-color: @{hover};
+}
+
+/* 箭头由 QmRibbonComboBox::paintEvent 自绘（跟着主题文字色走），这里把默认箭头关掉。 */
+#RibbonComboBox::down-arrow {
+    image: none;
+    width: 0;
+    height: 0;
+}
+
+/* 可编辑时的内嵌输入框：去框、透明底，别把外框盖住。
+ * 同样带上父级前缀，压过上面的「Group 内的原生控件」。 */
+#RibbonComboBox QLineEdit,
+#RibbonGroup #RibbonComboBox QLineEdit {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: @{text};
+    selection-background-color: @{accent};
+    selection-color: @{onAccent};
+}
+
+/* 弹出列表：条目由 QmRibbonComboBoxDelegate 自绘，这里只画外框与底色。
+ * 注意字号在这里不起作用 —— QComboBox 的列表是拿**组合框自己的字体**去绘制的
+ *（QComboBoxListView::initViewItemOption 里 option->font = combo->font()），
+ * 所以弹出列表的文字大小跟着 #RibbonComboBox 的 font-size 走。 */
+#RibbonComboBox QAbstractItemView {
+    background-color: @{contentBackground};
+    border: 1px solid @{borderStrong};
+    padding: 4px 0;
+    outline: 0;
+    selection-background-color: transparent;
+    selection-color: @{text};
+}
+
+/* ---------- 浮动控件（QmRibbonFloatingWidget） ----------
+ * 浮在 MainView 之上的小面板（浮动工具栏）。底色 / 边框 / 圆角在这里，
+ * 顶部拖动条（抓手、标题、固定标记）由控件自己用主题色画。 */
+#RibbonFloatingWidget {
+    background-color: @{contentBackground};
+    border: 1px solid @{borderStrong};
+    border-radius: 4px;
+}
+
+/* 固定住之后换成强调色边框：一眼能看出「它现在拖不动」。 */
+#RibbonFloatingWidget[pinned="true"] {
+    border-color: @{accent};
+}
+
+/* 说明：示例自己的页面样式（Backstage 页面、Dialog Box Launcher 弹窗等）**不在这里**，
+ * 而是放在 examples/simple/simple.qss —— 用同一套 @{键名} 占位符写法，
+ * 由 QmRibbonThemeMgr::setExtraStyleSheet() 追加应用，主题切换时同样会自动刷新。
+ * 这样框架样式表只包含框架自己的东西，业务/示例的样式各自独立。 */
+

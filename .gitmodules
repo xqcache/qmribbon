@@ -1,0 +1,6 @@
+[submodule "thirdparty/qwindowkit"]
+	path = thirdparty/qwindowkit
+	url = https://github.com/stdware/qwindowkit
+[submodule "thirdparty/qtadvanceddocking"]
+	path = thirdparty/qtadvanceddocking
+	url = https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System

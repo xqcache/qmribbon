@@ -1,0 +1,41 @@
+{
+  "name": "Dark",
+  "dark": true,
+  "animation": {
+    "enabled": true,
+    "duration": 160,
+    "easing": "OutCubic"
+  },
+  "colors": {
+    "accent": "#4cc2ff",
+    "accentHover": "#7ad3ff",
+    "onAccent": "#0b1a24",
+    "danger": "#e81123",
+
+    "windowBackground": "#212121",
+    "contentBackground": "#2b2b2b",
+
+    "text": "#e8e8e8",
+    "secondaryText": "#b3b3b3",
+    "mutedText": "#9a9a9a",
+    "disabledText": "#6b6b6b",
+
+    "border": "#3f3f3f",
+    "borderStrong": "#4d4d4d",
+    "borderHover": "#5c5c5c",
+
+    "hover": "#383838",
+    "pressed": "#454545",
+    "buttonChecked": "#2d4a63",
+    "buttonCheckedBorder": "#3d6b92",
+
+    "surface": "#242424",
+    "surfaceBorder": "#3a3a3a",
+    "surfaceHover": "#303030",
+    "separator": "#3a3a3a",
+
+    "inputBackground": "#333333",
+    "navChecked": "#383838",
+    "ribbonShadow": "#64000000"
+  }
+}

@@ -1,0 +1,257 @@
+/* 示例自己的样式表（不属于框架）
+ *
+ * 框架样式表是 resources/themes/ribbon.qss，只包含框架自己的控件；
+ * 这里放的是**示例页面**的东西：Backstage 的导航与页面、Dialog Box Launcher 的弹窗等。
+ *
+ * 写法与框架样式表一致：颜色写成 @{键名} 占位符，由 QmRibbonTheme 按当前主题替换，
+ * 所以换主题（浅色 / 深色 / 跟随系统）时这些样式也会跟着变。
+ *
+ * 生效方式见 examples/simple/main.cpp：
+ *     QmRibbonThemeMgr::instance().setExtraStyleSheet(读取本文件);
+ * 管理器会把它追加在框架样式表之后应用到窗口上，并在主题变化时自动重新解析。
+ *
+ * 备注：等框架级的 QmRibbonBackstageView 落地后，下面 #Backstage* 这些 objectName
+ * 约定可以整体搬回框架（示例这边只需删掉本文件里对应的段落）。
+ */
+
+/* ---------- Dialog Box Launcher（↘）的模拟弹窗 ---------- */
+#RibbonLauncherPopup {
+    background-color: @{contentBackground};
+    border: 1px solid @{borderStrong};
+}
+
+#RibbonLauncherPopupTitle {
+    background: transparent;
+    color: @{text};
+    font-size: 14px;
+}
+
+#RibbonLauncherPopupHint {
+    background: transparent;
+    color: @{mutedText};
+    font-size: 11px;
+}
+
+#RibbonLauncherPopupPreview {
+    background-color: @{surface};
+    border: 1px solid @{surfaceBorder};
+    border-radius: 3px;
+    color: @{text};
+    padding: 10px;
+}
+
+/* ---------- Backstage（File 页面） ---------- */
+#BackstageView,
+#BackstageContent {
+    background-color: @{contentBackground};
+}
+
+#BackstageNav {
+    background-color: @{windowBackground};
+}
+
+#BackstageNavSeparator {
+    background-color: @{separator};
+    border: none;
+    max-height: 1px;
+}
+
+#BackstageBackButton {
+    background: transparent;
+    border: none;
+    border-radius: 18px;
+    color: @{accent};
+    font-size: 18px;
+    /* 固定尺寸（36×36）的图标按钮：必须自己声明 padding: 0，
+     * 否则框架里 QPushButton 的通用内边距会把内容区吃光，「←」会被挤成一小段。 */
+    padding: 0;
+}
+
+#BackstageBackButton:hover {
+    background-color: @{hover};
+}
+
+#BackstageNavItem,
+#BackstageNavCommand {
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    border-radius: 4px;
+    padding-left: 9px;
+    text-align: left;
+    font-size: 14px;
+    color: @{text};
+}
+
+#BackstageNavItem:hover,
+#BackstageNavCommand:hover {
+    background-color: @{hover};
+}
+
+#BackstageNavItem:checked {
+    background-color: @{navChecked};
+    border-left: 3px solid @{accent};
+    color: @{accent};
+}
+
+#BackstagePageTitle {
+    background: transparent;
+    font-size: 22px;
+    color: @{text};
+}
+
+#BackstagePageSubtitle {
+    background: transparent;
+    font-size: 12px;
+    color: @{secondaryText};
+}
+
+#BackstageCard {
+    background-color: @{surface};
+    border: 1px solid @{surfaceBorder};
+    border-radius: 6px;
+}
+
+#BackstageCardTitle {
+    background: transparent;
+    font-size: 14px;
+    color: @{text};
+}
+
+#BackstageCardText {
+    background: transparent;
+    font-size: 12px;
+    color: @{secondaryText};
+}
+
+#BackstageRow {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+#BackstageRow:hover {
+    background-color: @{surfaceHover};
+    border-color: @{surfaceBorder};
+}
+
+#BackstageRowTitle {
+    background: transparent;
+    font-size: 13px;
+    color: @{text};
+}
+
+#BackstageRowText {
+    background: transparent;
+    font-size: 11px;
+    color: @{mutedText};
+}
+
+#BackstageTile {
+    background-color: @{inputBackground};
+    border: 1px solid @{surfaceBorder};
+    border-radius: 6px;
+}
+
+#BackstageTile:hover {
+    border-color: @{accent};
+}
+
+#BackstageTileCaption {
+    background: transparent;
+    font-size: 12px;
+    color: @{text};
+}
+
+#BackstageTileText {
+    background: transparent;
+    font-size: 11px;
+    color: @{mutedText};
+}
+
+#BackstagePreview {
+    background-color: @{contentBackground};
+    border: 1px solid @{border};
+}
+
+#BackstagePrimaryButton {
+    background-color: @{accent};
+    border: none;
+    border-radius: 4px;
+    color: @{onAccent};
+    font-size: 13px;
+    padding: 6px 24px;
+}
+
+#BackstagePrimaryButton:hover {
+    background-color: @{accentHover};
+}
+
+#BackstageView QComboBox {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 3px;
+    padding: 1px 4px;
+    min-height: 22px;
+    font-size: 12px;
+    min-width: 120px;
+}
+
+#BackstageView QComboBox:hover {
+    border-color: @{borderHover};
+}
+
+#BackstageView QCheckBox {
+    font-size: 13px;
+    color: @{text};
+    spacing: 8px;
+}
+
+/* 主题选择按钮（Backstage → Account） */
+#BackstageThemeButton {
+    background-color: @{contentBackground};
+    border: 1px solid @{surfaceBorder};
+    border-radius: 6px;
+    padding: 6px 14px;
+    text-align: left;
+    font-size: 13px;
+    color: @{text};
+}
+
+#BackstageThemeButton:hover {
+    border-color: @{accent};
+}
+
+#BackstageThemeButton:checked {
+    background-color: @{buttonChecked};
+    border: 2px solid @{accent};
+    color: @{accent};
+}
+
+/* Backstage 页面里如果用 QmRibbonComboBox，要压过上面那条 #BackstageView QComboBox
+ *（它比 #RibbonComboBox 多一个类型选择器，特异性更高）。 */
+#BackstageView #RibbonComboBox {
+    background-color: @{inputBackground};
+    border: 1px solid @{border};
+    border-radius: 0;
+    padding: 0 6px;
+    color: @{text};
+    font-size: 12px;
+    min-height: 20px;
+}
+
+#BackstageView #RibbonComboBox:hover {
+    border-color: @{borderHover};
+}
+
+#BackstageView #RibbonComboBox:focus,
+#BackstageView #RibbonComboBox:on {
+    border-color: @{accent};
+}
+
+#BackstageView #RibbonComboBox QLineEdit {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: @{text};
+}

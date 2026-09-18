@@ -1,0 +1,10 @@
+<RCC>
+    <!--
+        示例自己的样式表（不属于框架）。main.cpp 把它读出来交给
+        QmRibbonThemeMgr::setExtraStyleSheet()，由管理器按当前主题解析 @{键名} 占位符后
+        追加应用到窗口上，因此换主题时它也会跟着刷新。
+    -->
+    <qresource prefix="/simple">
+        <file alias="simple.qss">simple.qss</file>
+    </qresource>
+</RCC>

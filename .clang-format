@@ -1,0 +1,75 @@
+# ============================================================================
+#  clang-format 配置
+#
+#  ⚠️  请勿把 SortIncludes 改回 true / CaseSensitive / CaseInsensitive。
+#
+#  本项目的 include 顺序是手工维护的，存在自动排序会破坏的硬性约束：
+#
+#    1. <windows.h> 必须放在 Qt 头文件之后，否则 windows.h 里的宏
+#       （min / max / ERROR 等）会污染 Qt 头文件导致编译失败。
+#    2. 平台相关头文件必须留在 #ifdef Q_OS_WIN / Q_OS_LINUX ... 条件块内部，
+#       自动排序会把它们挪出条件块。
+#
+#  需要排序时请手动调整，不要依赖 clang-format。
+# ============================================================================
+
+Language: Cpp
+
+BasedOnStyle: LLVM
+
+# ---- 关键：绝不自动排序 include ----
+SortIncludes: Never
+IncludeBlocks: Preserve
+# 只调整 # 号后面的缩进，条件编译块内部手工排版保持不变。
+IndentPPDirectives: AfterHash
+
+# 项目使用 C++23（见 CMakeLists.txt），但 clang-format 19 尚不识别 c++23，
+# 这里用 c++20 仅影响格式化启发式，不影响编译。
+Standard: c++20
+
+# ---- 缩进 / 行宽 ----
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
+
+# ---- 指针 / 引用 ----
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# ---- 大括号：函数换行，class/struct/enum 与控制语句同行 ----
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterControlStatement: Never
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+
+# ---- 构造函数初始化列表：逗号在行首 ----
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 4
+
+# ---- 其它 ----
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+Cpp11BracedListStyle: false
+FixNamespaceComments: true
+NamespaceIndentation: None
+ReflowComments: false
+SeparateDefinitionBlocks: Leave
+SpaceAfterTemplateKeyword: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1

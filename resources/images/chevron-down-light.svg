@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    QComboBox 的下拉箭头（浅色主题）。
+
+    颜色没法写进 QSS（::down-arrow 只接受 image: url(...)），
+    所以明暗主题各准备一份，由 QmRibbonTheme::asset() 按主题的 dark 标记挑选；
+    样式表模板里写 image: url(@{chevronDown})，自定义主题可用 JSON 的 assets 段覆盖。
+
+    描边色 = 浅色主题的 text (#1b1b1b)，几何形状与 QmRibbonComboBox 自绘的那条
+    chevron 一致（8 × 4.4，线宽 1.2，圆头），两处箭头看起来才是同一个东西。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+  <path d="M3 3.9 L5 6.1 L7 3.9" fill="none" stroke="#1b1b1b" stroke-width="1.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
