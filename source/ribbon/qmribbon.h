@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QWidget>
 
 class QStackedWidget;
@@ -15,7 +17,7 @@ class QmRibbonTitleBar;
 ///   ├── QmRibbonTitleBar
 ///   ├── QmRibbonTabBar
 ///   └── QStackedWidget（Ribbon Page Stack）
-class QmRibbon : public QWidget {
+class QMRIBBON_EXPORT QmRibbon : public QWidget {
     Q_OBJECT
 
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)

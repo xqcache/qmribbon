@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QComboBox>
 #include <QFont>
 
@@ -29,7 +31,7 @@
 ///
 /// 分组标题只是「不可选中的一行」：鼠标与键盘都会跳过它，
 /// 点击它不会改变 `currentIndex()`（用 `isGroupHeader()` 可以判断某项是不是标题）。
-class QmRibbonComboBox : public QComboBox {
+class QMRIBBON_EXPORT QmRibbonComboBox : public QComboBox {
     Q_OBJECT
 
 public:

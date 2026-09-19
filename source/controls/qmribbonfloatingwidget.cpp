@@ -16,6 +16,34 @@
 
 #include <utility>
 
+namespace {
+
+/// 把 `count` 个条目摊到 `lines` 条线上（行或列），尽量均匀：
+/// 前面几条线各多放一个，**短的那几条排在后面**。
+///
+/// 这样中间不会出现空洞 —— 例如 6 个条目 4 行分到 2/2/1/1（而不是 2/1/2/1，
+/// 那种分法会在第二行的末尾留一个空格，看起来像排版坏了）。
+///
+/// `count >= lines >= 1` 时保证每线至少一个；输出为线号与线内序号。
+void distributeItems(int count, int lines, int index, int& line, int& offset)
+{
+    const int base = count / lines;    // 短线的条目数
+    const int extra = count % lines;   // 前面这么多条线各多放一个
+    const int head = extra * (base + 1);
+
+    if (index < head) {
+        line = index / (base + 1);
+        offset = index % (base + 1);
+        return;
+    }
+
+    const int rest = index - head;
+    line = extra + rest / base;
+    offset = rest % base;
+}
+
+} // namespace
+
 struct QmRibbonFloatingWidget::QmRibbonFloatingWidgetPrivate {
     QGridLayout* layout { nullptr };
     /// 面板里的条目（按加入顺序，`relayout()` 按预设排列摆放它们）。
@@ -168,7 +196,8 @@ void QmRibbonFloatingWidget::relayout()
     }
 
     const int total = items.size();
-    const int lines = qMax(1, d_->line_count);
+    // 期望的行 / 列数：条目比它少时按条目数算（不可能一行放不下一个条目）。
+    const int lines = qBound(1, d_->line_count, qMax(total, 1));
 
     int last_row = -1;
     int last_column = -1;
@@ -191,18 +220,14 @@ void QmRibbonFloatingWidget::relayout()
             break;
 
         case LayoutMode::Rows: {
-            // 横向排、共 lines 行：先排满一行再换行。
-            const int per_row = (total + lines - 1) / lines;
-            row = i / per_row;
-            column = i % per_row;
+            // 横向排、摊成 lines 行：条目尽量均匀，短行排在后面（中间不留空）。
+            distributeItems(total, lines, i, row, column);
             break;
         }
 
         case LayoutMode::Columns: {
-            // 纵向排、共 lines 列：先排满一列再换列。
-            const int per_column = (total + lines - 1) / lines;
-            row = i % per_column;
-            column = i / per_column;
+            // 纵向排、摊成 lines 列，同样均匀分布。
+            distributeItems(total, lines, i, column, row);
             break;
         }
         }

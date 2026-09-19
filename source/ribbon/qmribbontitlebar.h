@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QWidget>
 
 class QAction;
@@ -15,7 +17,7 @@ class QmRibbonQuickAccessBar;
 /// 标题栏本身不处理鼠标事件：QmRibbonWindow 会把本控件注册为 QWindowKit 的 titleBar，
 /// 其中的可拖动区域、三个窗口按钮以及需要交互的子控件分别由 QWindowKit 声明为
 /// HTCAPTION / 系统按钮 / hit-test 可见区域，拖动与双击最大化因此由系统原生完成。
-class QmRibbonTitleBar : public QWidget {
+class QMRIBBON_EXPORT QmRibbonTitleBar : public QWidget {
     Q_OBJECT
 
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)

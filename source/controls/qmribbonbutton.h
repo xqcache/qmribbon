@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QToolButton>
 
 class QAction;
@@ -8,7 +10,7 @@ class QAction;
 ///
 /// 基于 QToolButton 的轻量封装，只负责表达 Ribbon 语义（尺寸与排列方式），
 /// 外观统一交给 QmRibbonTheme。
-class QmRibbonButton : public QToolButton {
+class QMRIBBON_EXPORT QmRibbonButton : public QToolButton {
     Q_OBJECT
 
 public:

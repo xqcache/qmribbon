@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QWidget>
 
 class QAction;
@@ -12,7 +14,7 @@ class QmRibbonTab;
 ///
 /// 该区域除了普通 Tab 之外还包含 File 按钮与右侧动作（Help / Collapse），
 /// 因此不使用 QTabBar，而是自行组织布局。
-class QmRibbonTabBar : public QWidget {
+class QMRIBBON_EXPORT QmRibbonTabBar : public QWidget {
     Q_OBJECT
 
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentIndexChanged)

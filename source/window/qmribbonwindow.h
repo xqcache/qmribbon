@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QWidget>
 
 class QStackedWidget;
@@ -30,7 +32,7 @@ class CDockManager;
 /// 注意：使用本窗口的应用需要在构造 QApplication **之前**设置
 /// `QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings)`，
 /// 这是 QWindowKit 的要求。
-class QmRibbonWindow : public QWidget {
+class QMRIBBON_EXPORT QmRibbonWindow : public QWidget {
     Q_OBJECT
 
 public:

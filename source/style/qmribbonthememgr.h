@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include "qmribbontheme.h"
 
 #include <QHash>
@@ -25,7 +27,7 @@ class QWidget;
 ///
 /// 主题本身（配色 + 由配色生成的样式表）来自 JSON 配置文件，
 /// 见 `QmRibbonTheme` 与 `resources/themes/*.json`。
-class QmRibbonThemeMgr : public QObject {
+class QMRIBBON_EXPORT QmRibbonThemeMgr : public QObject {
     Q_OBJECT
 
 public:
@@ -94,6 +96,9 @@ public:
     /// QmRibbonThemeMgr::instance().apply(dialog);
     /// ```
     ///
+    /// 已经有登记的**祖先**控件时不重复登记（也不给它单独一份样式表）——
+    /// 祖先那份会顺着父子关系作用到它，重复设一份只会让每次换主题多刷一遍它的整棵子树。
+    ///
     /// 注意：控件自身的样式表优先级高于祖先的样式表，所以第三方控件（例如 ADS 停靠区）
     /// 自己声明过的属性不会被这里盖掉。
     void apply(QWidget* root);
@@ -111,6 +116,15 @@ public:
     void setExtraStyleSheet(const QString& template_text);
     QString extraStyleSheet() const;
 
+    /// 主题切换过渡：切之前给**登记过的顶层窗口**各截一张旧主题快照，盖上一层遮罩，
+    /// 切完再从中心把一个圆逐渐扩大，露出新主题（`QmRibbonThemeSwitchMask`）。默认开启。
+    ///
+    /// 关掉它，或者用 `QmRibbonAnimationUtil::setEnabled(false)` / 主题配置里的
+    /// `animation.enabled = false` 关掉全部动效，都会回到原来的瞬间切换。
+    /// 过渡期间窗口照常可交互（遮罩对鼠标透明）。
+    void setThemeTransitionEnabled(bool enabled);
+    bool isThemeTransitionEnabled() const;
+
 signals:
     void modeChanged(Mode mode);
     void themeChanged(const QmRibbonTheme& theme);
@@ -124,6 +138,10 @@ private:
     QString currentStyleSheet() const;
     /// 只把样式表重新刷到已登记的 root 上（不碰调色板、不发信号）。
     void refreshStyleSheets();
+    /// 主题切换前：收拾上一次的遮罩、给可见的顶层窗口抓旧主题快照。
+    void beginThemeTransition();
+    /// 主题切换后：抓新主题快照、建遮罩并起动画（没有快照时是空操作）。
+    void playThemeTransition();
     void refresh();
     void handleColorSchemeChanged();
 

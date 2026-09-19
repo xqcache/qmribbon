@@ -16,6 +16,11 @@ add_executable(
 )
 target_link_libraries(${TARGET_NAME} PRIVATE qmribbon)
 
+# 动态库构建（Windows）下把 qmribbon.dll / ADS 的 DLL 拷到示例旁边，
+# 这样 `./build*/examples/simple/qmribbon_simple` 两种构建类型都能直接跑。
+# 静态库构建时这个宏什么都不做。
+qmribbon_deploy_runtime(${TARGET_NAME})
+
 # ---------------------------------------------------------------------------
 # 关于 Windows 11 贴靠布局（Snap Layout）
 #

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include "qmribbonbutton.h"
 
 #include <QWidget>
@@ -14,7 +16,7 @@ class QToolButton;
 ///   - Small 按钮以及通过 addWidget() 加入的控件按「列」堆叠，每列最多三行。
 ///
 /// 业务层只需要描述 Ribbon 语义，不需要操作布局。
-class QmRibbonGroup : public QWidget {
+class QMRIBBON_EXPORT QmRibbonGroup : public QWidget {
     Q_OBJECT
 
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)

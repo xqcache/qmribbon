@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include "qmribbonanimationutil.h"
 
 #include <QColor>
@@ -87,7 +89,7 @@ inline constexpr int ribbon_shadow_height = 6;
 /// 这个类是「一份主题」的值类型；它不持有任何全局状态：
 ///   - **当前生效的主题**在管理器上：`QmRibbonThemeMgr::current()`（取色统一入口）；
 ///   - **内置主题**（Light / Dark）也由管理器提供：`QmRibbonThemeMgr::light()` / `dark()`。
-class QmRibbonTheme {
+class QMRIBBON_EXPORT QmRibbonTheme {
 public:
     QmRibbonTheme() = default;
 

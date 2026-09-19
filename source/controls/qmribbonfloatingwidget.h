@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QFrame>
 #include <QPoint>
 
@@ -35,7 +37,7 @@ class QToolButton;
 /// bar->addWidget(my_combo);
 /// window->addFloatingWidget(bar, QPoint(24, 24));
 /// ```
-class QmRibbonFloatingWidget : public QFrame {
+class QMRIBBON_EXPORT QmRibbonFloatingWidget : public QFrame {
     Q_OBJECT
 
     Q_PROPERTY(QString title READ title WRITE setTitle)
@@ -48,8 +50,8 @@ public:
     enum class LayoutMode {
         Horizontal, ///< 横向单行
         Vertical,   ///< 纵向单列
-        Rows,       ///< 横向排列、分成 `lineCount()` 行（先排满一行再换行）
-        Columns,    ///< 纵向排列、分成 `lineCount()` 列（先排满一列再换列）
+        Rows,       ///< 横向排列、摊成 `lineCount()` 行（短行排在后面，中间不留空）
+        Columns,    ///< 纵向排列、摊成 `lineCount()` 列（同上）
     };
     Q_ENUM(LayoutMode)
 
@@ -70,7 +72,9 @@ public:
     // ---- 预设排列 ----
 
     LayoutMode layoutMode() const;
-    /// 设置排列方式；`line_count` 只在 `Rows` / `Columns` 下有意义（行数 / 列数，默认 2）。
+    /// 设置排列方式；`line_count` 只在 `Rows` / `Columns` 下有意义
+    ///（**期望**的行数 / 列数，默认 2）。条目尽量均匀地摊开，**短的那几行/列排在后面**，
+    /// 所以中间不会出现空位：6 个条目 4 行 → 2/2/1/1；条目比它少时按条目数算。
     void setLayoutMode(LayoutMode mode, int line_count = 2);
     /// `Rows` 的行数 / `Columns` 的列数，最小 1。
     int lineCount() const;

@@ -15,13 +15,16 @@ qmribbon/
 │   ├── ribbon/      QmRibbon、TitleBar、QuickAccessBar、TabBar、Tab、Page、Group
 │   ├── controls/    QmRibbonButton、QmRibbonComboBox、QmRibbonFloatingWidget 等 Ribbon 控件
 │   ├── style/       QmRibbonTheme / QmRibbonThemeMgr —— 主题（配置驱动）、
+│   │                QmRibbonThemeSwitchMask —— 切主题时的「挖空圆」过渡遮罩、
 │   │                QmRibbonStyle —— 应用样式（QProxyStyle，收敛少数原生行为）、
 │   │                QmRibbonAnimationUtil —— 动效（主题配置 + 运行时覆盖）、尺寸常量
-│   └── utils/       QmRibbonShadowGenerator —— 九宫格阴影贴图（窗口已改用系统边框，此工具当前不接入窗口）
+│   ├── utils/       QmRibbonShadowGenerator —— 九宫格阴影贴图（窗口已改用系统边框，此工具当前不接入窗口）
+│   └── qmribbonexport.h  QMRIBBON_EXPORT 导出宏（动态库构建用，公共头都包含它）
 ├── resources/themes/ 主题配置：light.json / dark.json / ribbon.qss（编译进库，只放框架样式）
 ├── thirdparty/      git submodule：QWindowKit（无边框窗口）、Qt Advanced Docking System（停靠）
 ├── examples/simple/ Word 风格的完整示例（含示例自己的样式表 simple.qss / simple.qrc）
 ├── tests/shadow_svg/ 阴影贴图与九宫格拉伸的目视验证（独立工具）
+├── tests/consumer/  安装包消费验证（独立工程，不被主工程构建，见「安装与集成」）
 └── docs/
 ```
 
@@ -36,17 +39,91 @@ qmribbon/
 git clone --recursive <this-repo>
 # 已经克隆过：git submodule update --init --recursive
 
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug   # 默认：静态库
 cmake --build build
 ./build/examples/simple/qmribbon_simple
 ```
 
+### 动态库（DLL / SO）
+
+加 `-DQMRIBBON_BUILD_SHARED=ON`（等价于 CMake 约定的 `-DBUILD_SHARED_LIBS=ON`）构建动态库：
+
+```bash
+cmake -S . -B build-shared -G Ninja -DCMAKE_BUILD_TYPE=Debug -DQMRIBBON_BUILD_SHARED=ON
+cmake --build build-shared
+./build-shared/examples/simple/qmribbon_simple
+```
+
+| 构建类型 | 产物 | 运行期要部署的东西 |
+| --- | --- | --- |
+| 静态（默认） | `lib/qmribbond.lib` | 无（框架与第三方都在目标文件里） |
+| 动态 | `bin/qmribbond.dll` + `lib/qmribbond.lib`（导入库） | `qmribbon.dll` 与 `qtadvanceddocking-qt6.dll` |
+
+上表是 Debug 的名字：两个 DLL 都带 `d` 后缀（`qmribbond.dll` / `qtadvanceddocking-qt6d.dll`），
+Release 则没有。
+
+几点说明：
+
+- **一次 configure 只产出一种类型**：两种都要就配两个目录（例如 `build/` 与
+  `build-shared/`，`.gitignore` 已忽略 `build-*` / `install-*`）。
+- 动态构建下 ADS（**公共**依赖）也跟着构建成 DLL，原因见根 `CMakeLists.txt`：静态 ADS 被
+  链进 `qmribbon.dll` 之后，使用方还会再链一份，同一进程里就有两份 ADS，各自的静态状态
+  互相看不见。顺带也满足 LGPL 对 ADS 的「动态链接」建议（见 `thirdparty/README.md` 的
+  许可证提醒）。QWindowKit 反过来**始终静态** —— 它只出现在 `.cpp` 里（公共头不暴露它），
+  会被整体链进 `qmribbon.dll`，所以不会多出一个要部署的 QWindowKit DLL。
+- Windows 上示例与测试会把 DLL 自动拷到可执行文件旁边，所以上面两条运行命令在两种构建
+  类型下都成立；你自己工程里的 exe 需要自己处理（见下一节）。
+- **新增公共类时要在类名前加 `QMRIBBON_EXPORT`**（见 `source/qmribbonexport.h`）：静态库
+  构建看不出问题，动态库构建下使用方会报 LNK2019。
+
 作为子项目引入时（`QMRIBBON_BUILD_EXAMPLES` / `QMRIBBON_BUILD_TESTS` 默认关闭）：
 
 ```cmake
+set(QMRIBBON_BUILD_SHARED ON)   # 可选：把 qmribbon 构建成动态库
 add_subdirectory(thirdparty/qmribbon)
 target_link_libraries(your_app PRIVATE qmribbon::qmribbon)
 ```
+
+## 安装与集成（find_package）
+
+```bash
+cmake --install build        --prefix install-static
+cmake --install build-shared --prefix install-shared
+```
+
+装出来的目录（以静态为例）：
+
+```
+install-static/
+├── include/              qmribbon*.h（平铺）+ qmribbonexport.h
+├── lib/                  qmribbond.lib（动态构建时这里是导入库）
+├── bin/                  动态构建时的 qmribbond.dll 与 qtadvanceddocking-qt6d.dll
+└── lib/cmake/qmribbon/   qmribbonConfig.cmake / qmribbonTargets.cmake / ConfigVersion
+```
+
+`cmake --install` 会连同一路构建的 QWindowKit、ADS 一起安装（它们各自也有 install 规则），
+装完这个前缀就是个自洽的包。使用方：
+
+```cmake
+find_package(qmribbon 0.0.1 CONFIG REQUIRED)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE qmribbon::qmribbon)
+```
+
+```bash
+cmake -S . -B build -G Ninja -DCMAKE_PREFIX_PATH="<qmribbon 前缀>;<Qt6 前缀>"
+```
+
+注意事项：
+
+- 动态库版本的 exe 运行时需要 `qmribbon.dll`（以及 `qtadvanceddocking-qt6.dll`，Debug 下
+  都带 `d` 后缀）在它旁边或在 PATH 里 —— CMake 不会替你部署，`<prefix>/bin` 就是它们的位置。
+- 静态库版本会在接口上带 `QMRIBBON_STATIC`，链接 `qmribbon::qmribbon` 即自动生效；
+  **不用 CMake 目标、手工加 include 目录链接静态库时必须自己定义这个宏**，否则头文件里
+  会展开成 `dllimport`，链接必然失败。
+- 框架状态（主题管理器单例、动效覆盖等）都在库里：动态库方案下应用与 DLL 共享同一份。
+- `tests/consumer/` 是一个**独立工程**（不被主工程构建），专门用来验证上面这套安装包：
+  它触达每一个公共类，动态库版本能编译链接通过就说明导出宏齐全。
 
 ## 快速上手
 
@@ -146,8 +223,12 @@ combo->popupMinimumWidth();                                 // 0
 | --- | --- |
 | `Horizontal` | 横向单行（默认） |
 | `Vertical` | 纵向单列 |
-| `Rows` | 横向排列、分成 `lineCount()` 行（先排满一行再换行） |
-| `Columns` | 纵向排列、分成 `lineCount()` 列（先排满一列再换列） |
+| `Rows` | 横向排列、摊成 `lineCount()` 行 |
+| `Columns` | 纵向排列、摊成 `lineCount()` 列 |
+
+`lineCount()` 是**期望**的行 / 列数，条目尽量均匀地摊开，而且**短的那几行/列排在后面**，
+所以中间不会出现空位：6 个条目要 4 行 → 2/2/1/1（不是 2/1/2/1，那样第二行末尾会空一格）；
+条目比它少时按条目数算（3 个条目要 6 列就是 3 列）。
 
 ```cpp
 auto* bar = new QmRibbonFloatingWidget;
@@ -311,6 +392,42 @@ themes.setMode(QmRibbonThemeMgr::Mode::System);  // 跟随系统（默认）
 - 示例里有两个切换入口，都通过 `modeChanged` 保持选中态同步：
   **View → Theme 分组**（Light / Dark / 跟随系统，三个互斥的 Large 按钮）和
   **File → Account → 主题**（同样的三个选项，按钮式）。
+
+### 主题切换动画
+
+切主题不是硬闪，而是从窗口中心"擦"过去：管理器在切换**前**给每个可见的顶层窗口截一张旧主题快照，
+切完后用 `QmRibbonThemeSwitchMask` 盖上整个窗口 —— 遮罩画的是「旧主题 + 中间一个不断扩大的洞
+（`QPainterPath` 矩形 + 圆，`OddEvenFill` 奇偶填充）」，洞里露出的就是下面已经换成新主题的实时窗口，
+所以看起来像新皮肤从圆心扩散开来。
+
+只截**一张**快照（不是新旧各一张）：整窗 `grab()` 是这条链路上最贵的一步，少做一次，
+切换时的停顿明显更短；正确性也没损失 —— 调色板 / 样式表此时已经换好，窗口的新主题重绘
+在动画第一帧（圆还没露出来）之前就完成了。需要「完全不依赖下层窗口」的场合
+（例如自己手动用这个遮罩）可以再 `setAfterSnapshot()` 补一张新快照，那样遮罩就自给自足。
+
+它**全自动**，示例里四个切换入口（含跟随系统响应系统明暗）都会播，业务不用接任何东西；
+过渡只对**登记过的顶层窗口**生效（`QmRibbonWindow`、`apply()` 过的对话框会一起播）。
+
+```cpp
+QmRibbonThemeMgr::instance().setThemeTransitionEnabled(false);   // 关掉过渡（默认开启）
+QmRibbonAnimationUtil::setEnabled(false);                          // 或者干脆关掉所有动效
+```
+
+时长与缓动曲线复用主题 `animation` 段的设置（见下面「动画」一节），
+所以深浅两个主题可以各自定速度；过渡期间遮罩对鼠标透明，窗口照常可拖动、可交互。
+已知限制：窗口的**非客户区**（DWM 的系统边框 / 阴影）截不到也动画不了，那部分是瞬间切换的；
+过渡途中有窗口尺寸变化时，遮罩会跟着贴合并按新尺寸缩放快照。
+
+> 如果觉得切主题「点一下要等一下才动」，那部分基本不在这个动画上，而在换肤本身：
+> 最贵的一步是窗口的 QSS 重新解析 + 整棵子树重新 polish（实测一个 1300 个控件的窗口，
+> 一次 `setStyleSheet()` 约 85ms；控件越多线性增长），其次是整窗 `grab()`（1600×900 @150% DPI
+> 约 8~25ms）。`setPalette()` 本身几乎不要钱（<0.1ms）。判断方法：
+> `setThemeTransitionEnabled(false)` 再切一次，停顿依旧 → 就是换肤本身的开销。
+>
+> 框架为此做了两件事：过渡只截一张快照（少一次整窗 render）；换肤时**不重复设表** ——
+> Qt 对「设成同一个字符串」不做短路（同串照样重新解析、重新 polish），所以
+> `QmRibbonThemeMgr` 会先比对再设，重复 `apply()`、切到当前主题、系统明暗信号抖动等
+> 都不会白刷整棵树。
 
 ### Qt 常用控件的统一外观
 
@@ -551,7 +668,9 @@ animation->start();
   `QmRibbonThemeMgr` 负责内置主题（`light()` / `dark()`，注册为 Light / Dark）的读取与注册、
   模式切换、实时应用，以及取色入口 `QmRibbonThemeMgr::current()`
 - `QmRibbonAnimationUtil`：集中动效配置（默认值 → 主题 `animation` 段 → 运行时覆盖）与缓动曲线名转换，
-  框架内的动画（Ribbon 折叠 / 展开、Backstage 切换）都从它取设置
+  框架内的动画（Ribbon 折叠 / 展开、Backstage 切换、主题切换过渡）都从它取设置
+- `QmRibbonThemeSwitchMask`：切主题时的过渡遮罩 —— 旧主题快照上挖一个不断扩大的圆露出新主题，
+  由 `QmRibbonThemeMgr` 自动对登记过的顶层窗口播放（`setThemeTransitionEnabled(false)` 可关）
 - `QmRibbonStyle`：可选的应用样式（`QProxyStyle`）。目前只覆盖 `SH_ComboBox_Popup`，
   让下拉框弹出列表完全由主题样式表控制，不再出现那层删不掉的原生菜单外框
 - `QmRibbonWindow::dockManager()`：MainView 接入 Qt Advanced Docking System

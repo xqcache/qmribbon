@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QProxyStyle>
 
 /// Ribbon 风格的应用样式：包一层应用当前的样式（通常就是 Fusion），
@@ -24,7 +26,7 @@
 ///
 /// 不装这个样式也能正常用，只是普通下拉框的弹出列表会保留 Qt 原生的菜单外框；
 /// 那种情况下把 `ribbon.qss` 里 `QComboBox QAbstractItemView` 的 border 去掉更合适。
-class QmRibbonStyle : public QProxyStyle {
+class QMRIBBON_EXPORT QmRibbonStyle : public QProxyStyle {
     Q_OBJECT
 
 public:

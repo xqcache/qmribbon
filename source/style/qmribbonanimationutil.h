@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QEasingCurve>
 #include <QString>
 #include <QStringList>
@@ -28,7 +30,7 @@ class QPropertyAnimation;
 /// animation->setEndValue(to);
 /// animation->start();
 /// ```
-class QmRibbonAnimationUtil {
+class QMRIBBON_EXPORT QmRibbonAnimationUtil {
 public:
     // ---- 默认值（主题配置里的 `animation` 段缺项时使用）----
 

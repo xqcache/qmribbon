@@ -1,12 +1,14 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QAbstractButton>
 #include <QColor>
 
 /// Ribbon Tab（Home / Insert / View ...）。
 ///
 /// 使用 QAbstractButton 自绘，以获得 Word 风格的下划线选中态与 Contextual Tab 配色。
-class QmRibbonTab : public QAbstractButton {
+class QMRIBBON_EXPORT QmRibbonTab : public QAbstractButton {
     Q_OBJECT
 
     Q_PROPERTY(QString contextualGroup READ contextualGroup WRITE setContextualGroup)

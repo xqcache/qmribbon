@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QWidget>
 
 class QmRibbonGroup;
@@ -8,7 +10,7 @@ class QmRibbonGroup;
 ///
 /// 一个 Ribbon Tab 对应一个 Page，内部横向排列若干 QmRibbonGroup，
 /// 并负责绘制 Group 之间的分隔线。
-class QmRibbonPage : public QWidget {
+class QMRIBBON_EXPORT QmRibbonPage : public QWidget {
     Q_OBJECT
 
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)

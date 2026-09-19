@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qmribbonexport.h"
+
 #include <QColor>
 #include <QImage>
 #include <QPointF>
@@ -11,7 +13,11 @@ class QPainter;
 ///
 /// 生成的图片中心为全透明，只包含四周的柔和阴影，
 /// 因此可以按边/角切片后拉伸到任意窗口尺寸。
-class QmRibbonShadowGenerator {
+///
+/// 这是**私有**工具（头文件不安装、库内部也没有调用点），带导出宏仅仅是因为
+/// `tests/shadow_svg` 用构建树里的相对路径包含它：动态库构建下这两个静态函数必须能从
+/// qmribbon.dll 里导出，否则那个测试链接不过。
+class QMRIBBON_EXPORT QmRibbonShadowGenerator {
 public:
     struct Options {
         /// 阴影向外扩散的距离，同时也是九宫格边框宽度。

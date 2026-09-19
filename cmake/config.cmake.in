@@ -15,7 +15,13 @@ find_dependency(
 )
 
 # 无边框窗口依赖 QWindowKit（随包一起安装，或由使用方自行提供）。
-find_dependency(QWindowKit COMPONENTS Widgets)
+#
+# 只有**静态库**构建需要它：QWindowKit 是 PRIVATE 依赖，静态库里会以
+# `$<LINK_ONLY:QWindowKit::Widgets>` 的形式出现在导出目标上，使用方必须能找到这个包；
+# 动态库构建下它已经链进 qmribbon.dll，导出目标里没有它，就不该强制要求。
+if(@QMRIBBON_NEEDS_QWINDOWKIT@)
+    find_dependency(QWindowKit COMPONENTS Widgets)
+endif()
 
 # 停靠系统依赖 Qt Advanced Docking System。注意其包名带 Qt 主版本号。
 find_dependency(qtadvanceddocking-qt6)
